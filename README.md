@@ -6,30 +6,29 @@ iPhone with no signal.
 
 No build step. Every page is a single self-contained HTML file.
 
+Live at **https://claws02.github.io/CLAWTracker/**
+
 ## Deploy
 
-Create an empty repo named `claw-lab` on GitHub, then from this folder:
+The repo is `Claws02/CLAWTracker` and Pages is published by a workflow, so a
+push that breaks the suites never reaches the phone.
 
-```bash
-git init
-git add .
-git commit -m "CLAW Lab: fall block tracker and Spec Check ep1 deck"
-git branch -M main
-git remote add origin git@github.com:Claws02/claw-lab.git
-git push -u origin main
-```
+One-time setup, on GitHub:
 
-Then on GitHub: **Settings → Pages → Source: Deploy from a branch → `main` / `/ (root)`**.
+1. **Settings → Pages → Source: GitHub Actions.**
+2. Push to `main`.
 
-Live at `https://claws02.github.io/claw-lab/` about a minute later.
+`.github/workflows/pages.yml` then runs the jsdom suites and the per-page
+syntax gate, and only deploys the repo root if both are green. Watch a run
+under the **Actions** tab; the deploy job prints the live URL. You can also
+trigger it by hand from there with **Run workflow**.
 
-This is a separate repo from `Claws02/github.io` on purpose — the portfolio
-rebuild is its own project with its own host, and these tools should not be
-sitting in the middle of it.
+Nothing to build, and no `gh-pages` branch — the artifact is the repo root as
+it sits.
 
 ## On the iPhone
 
-1. Open `https://claws02.github.io/claw-lab/` in Safari.
+1. Open `https://claws02.github.io/CLAWTracker/` in Safari.
 2. Share → Add to Home Screen.
 3. It launches without browser chrome and works offline after the first visit.
 
@@ -51,10 +50,11 @@ npm install
 npm test
 ```
 
-159 assertions across three suites. They cover the failure paths deliberately —
-storage that throws, corrupt payloads, malformed links, wrong-shape imports —
-and they check structural rules on the decks: six contiguous clips, every clip
-opening with a context-free hook, no backward references in hooks.
+250 assertions across four suites. They cover the failure paths deliberately —
+storage that throws, corrupt payloads, malformed links, wrong-shape imports,
+link schemes that could execute — and they check structural rules on the decks:
+six contiguous clips, every clip opening with a context-free hook, no backward
+references in hooks.
 
 ## Layout
 
@@ -64,11 +64,26 @@ tracker.html            14-week tracker, episode pipeline board, session log
 deck/ep1.html           Spec Check episode 1 deck; the template for 2-6
 docs/plan.md            December goal, week-by-week, contingency rules
 docs/format.md          episode format, clip-harvest system, six outlines
+docs/plan.html          the same plan, rendered for the phone
+docs/format.html        the same format spec, rendered for the phone
 sw.js                   network-first service worker, cache as offline fallback
 manifest.webmanifest    home-screen install metadata
+.github/workflows/      test-then-deploy to Pages
 tests/                  jsdom suites
 CLAUDE.md               conventions and constraints for a Claude Code session
 ```
+
+## The docs pages
+
+GitHub Pages serves a raw `.md` as markdown, which Safari downloads instead of
+rendering — so the two reference docs also exist as HTML. Each one embeds its
+markdown verbatim in a `<script type="text/markdown">` block and renders it on
+load with the same `el()` / `textContent` rules as the rest of the site. No
+fetch, so they read with no signal.
+
+The `.md` files stay the source of truth for Obsidian. After editing one, paste
+the new text back into the matching HTML page's markdown block. `docs.test.js`
+compares the two byte-for-byte and fails if you forget.
 
 ## Adding episode 2
 
@@ -78,4 +93,11 @@ cp deck/ep1.html deck/ep2.html
 
 Replace the `EPISODE` and `SLIDES` arrays marked `EDIT HERE`. Leave the engine
 below the second banner alone. Add `./deck/ep2.html` to `SHELL` in `sw.js` and
-bump `CACHE` to `claw-lab-v2`, or phones will keep serving the old shell.
+bump `CACHE` to the next `claw-lab-vN`, or phones will keep serving the old
+shell.
+
+## Why this is its own repo
+
+The portfolio rebuild (`Claws02/github.io`, targeted at Cloudflare Pages) is a
+separate project with its own host. These tools should not be sitting in the
+middle of it.

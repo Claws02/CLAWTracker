@@ -1,14 +1,17 @@
 /* CLAW Lab service worker.
    Network-first for pages so a push always wins; cache is the offline fallback.
    Bump CACHE when you change the shell file list. */
-const CACHE = "claw-lab-v1";
+const CACHE = "claw-lab-v2";
 const SHELL = [
   "./",
   "./index.html",
   "./tracker.html",
   "./deck/ep1.html",
+  "./docs/plan.html",
+  "./docs/format.html",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
+  "./icons/icon-512.png",
   "./icons/apple-touch-icon.png"
 ];
 

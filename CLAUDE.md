@@ -12,6 +12,8 @@ static, single-file, and hosted on GitHub Pages so it works on an iPhone.
 | `deck/ep1.html` | Spec Check presenter deck, episode 1. Also the template for 2–6 |
 | `docs/plan.md` | The December goal, week-by-week schedule, contingency rules |
 | `docs/format.md` | Episode format spec, clip-harvest system, six episode outlines |
+| `docs/plan.html` | The plan, rendered for the phone. Embeds `plan.md` verbatim |
+| `docs/format.html` | The format spec, rendered for the phone. Embeds `format.md` verbatim |
 | `sw.js` | Service worker. Network-first for pages, cache as offline fallback |
 | `manifest.webmanifest` | Home-screen install metadata |
 
@@ -29,6 +31,12 @@ static, single-file, and hosted on GitHub Pages so it works on an iPhone.
   `el()` helper and `textContent`. Keep it that way.
 - **Bump `CACHE` in `sw.js`** whenever the shell file list changes, or phones
   will serve a stale page.
+- **The `.md` files are the source of truth** for the two reference docs. The
+  matching `.html` pages embed that markdown verbatim in a
+  `<script type="text/markdown">` block and render it at load with `el()` and
+  `textContent`. Edit the markdown, then paste it back into the block.
+  `docs.test.js` compares them byte-for-byte and fails on drift. Do not add a
+  build step to keep them in sync — the whole point is that there isn't one.
 
 ## Verification before anything ships
 
@@ -38,9 +46,11 @@ From `tests/`:
 npm install          # jsdom only
 node tracker.test.js # 65+ assertions
 node deck.test.js    # 46+ assertions
+node link.test.js    # 61+ assertions, share links and PWA wiring
+node docs.test.js    # 78+ assertions, the rendered reference docs
 ```
 
-Both must be green. The suites cover failure paths on purpose — storage that
+Or just `npm test`, which runs all four. All must be green. The suites cover failure paths on purpose — storage that
 throws, corrupt saved payloads, malformed imports — because a storage bug has
 shipped here before. Add to them rather than replacing them.
 
@@ -49,6 +59,13 @@ Also run a syntax gate on any page you touch:
 ```
 node -e "const fs=require('fs');const h=fs.readFileSync('tracker.html','utf8');fs.writeFileSync('/tmp/x.js',h.match(/<script>([\s\S]*?)<\/script>/)[1])" && node --check /tmp/x.js
 ```
+
+The docs pages hold two script blocks; the bare `<script>` in that pattern
+matches the code one and skips the `text/markdown` one, so the gate works
+there unchanged.
+
+CI runs both the suites and this gate on every push to `main`, and Pages only
+deploys if they pass — see `.github/workflows/pages.yml`.
 
 ## Building episodes 2 through 6
 
@@ -82,5 +99,12 @@ Rules the deck tests enforce, so keep them true:
 
 ## Deploying
 
-Push to `main`. GitHub Pages serves from the repo root. `.nojekyll` is present
-so paths beginning with underscores are not eaten. Nothing to build.
+The repo is `Claws02/CLAWTracker`; the site is
+`https://claws02.github.io/CLAWTracker/`. Every in-page path is relative, so
+the project subpath costs nothing.
+
+Push to `main`. `.github/workflows/pages.yml` runs the suites and the syntax
+gate, then publishes the repo root to Pages. Pages **Source** must be set to
+**GitHub Actions**, not "Deploy from a branch" — if it is on branch mode the
+workflow deploy step fails. `.nojekyll` is present so paths beginning with
+underscores are not eaten. Nothing to build.

@@ -25,7 +25,7 @@ const settle = () => new Promise(r => setTimeout(r, 40));
 
 (async () => {
   // ---- base64url round trip, including non-ASCII notes ----
-  let w = boot('https://claws02.github.io/claw-lab/tracker.html', memStore());
+  let w = boot('https://claws02.github.io/CLAWTracker/tracker.html', memStore());
   await settle();
   const api = w.__claw;
 
@@ -39,7 +39,7 @@ const settle = () => new Promise(r => setTimeout(r, 40));
   // ---- share link shape ----
   api.state.ticks['w2b'] = true;
   const link = api.shareLink();
-  ok(link.indexOf('https://claws02.github.io/claw-lab/tracker.html#s=') === 0, 'link keeps the page path and adds #s=');
+  ok(link.indexOf('https://claws02.github.io/CLAWTracker/tracker.html#s=') === 0, 'link keeps the page path and adds #s=');
   const payload = JSON.parse(api.b64dec(link.split('#s=')[1]));
   ok(payload.ticks.w2b === true, 'link payload carries the ticks');
 
@@ -61,7 +61,7 @@ const settle = () => new Promise(r => setTimeout(r, 40));
 
   // ---- malformed hashes are ignored, not fatal ----
   for (const bad of ['#s=%%%%', '#s=', '#nonsense', '#s=eyJicm9rZW4i']) {
-    const wb = boot('https://claws02.github.io/claw-lab/tracker.html' + bad, memStore());
+    const wb = boot('https://claws02.github.io/CLAWTracker/tracker.html' + bad, memStore());
     await settle();
     ok(!!wb.__claw && wb.document.querySelectorAll('#weeks .week').length === 14,
        'app still boots with hash ' + bad);
@@ -69,12 +69,12 @@ const settle = () => new Promise(r => setTimeout(r, 40));
 
   // ---- a hash that decodes to valid JSON of the wrong shape ----
   const wrong = Buffer.from('[1,2,3]').toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  const w4 = boot('https://claws02.github.io/claw-lab/tracker.html#s=' + wrong, memStore());
+  const w4 = boot('https://claws02.github.io/CLAWTracker/tracker.html#s=' + wrong, memStore());
   await settle();
   ok(w4.__claw.allTotals().done === 0, 'wrong-shape link payload is ignored');
 
   // ---- link button is wired ----
-  const w5 = boot('https://claws02.github.io/claw-lab/tracker.html', memStore());
+  const w5 = boot('https://claws02.github.io/CLAWTracker/tracker.html', memStore());
   await settle();
   w5.document.execCommand = () => true;
   const btn = w5.document.getElementById('link');
@@ -83,8 +83,11 @@ const settle = () => new Promise(r => setTimeout(r, 40));
   ok(w5.document.getElementById('io').value.indexOf('#s=') > -1, 'pressing it puts a link in the box');
 
   // ---- PWA wiring on every page ----
+  const read = n => fs.readFileSync(__dirname + '/../' + n, 'utf8');
   const pages = { 'tracker.html': HTML, 'index.html': INDEX,
-                  'deck/ep1.html': fs.readFileSync(__dirname + '/../deck/ep1.html', 'utf8') };
+                  'deck/ep1.html': read('deck/ep1.html'),
+                  'docs/plan.html': read('docs/plan.html'),
+                  'docs/format.html': read('docs/format.html') };
   Object.keys(pages).forEach(name => {
     const h = pages[name];
     ok(h.indexOf('rel="manifest"') > -1, name + ' links the manifest');
@@ -94,6 +97,9 @@ const settle = () => new Promise(r => setTimeout(r, 40));
   });
   // relative depth is correct for the nested deck page
   ok(pages['deck/ep1.html'].indexOf('href="../manifest.webmanifest"') > -1, 'deck page walks up one level for the manifest');
+  ['docs/plan.html', 'docs/format.html'].forEach(n => {
+    ok(pages[n].indexOf('href="../manifest.webmanifest"') > -1, n + ' walks up one level for the manifest');
+  });
   ok(pages['index.html'].indexOf('href="./manifest.webmanifest"') > -1, 'index uses a root-relative manifest path');
 
   // ---- manifest and service worker sanity ----

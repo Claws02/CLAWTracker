@@ -1,0 +1,73 @@
+name: Pages
+
+# Deploys the repo root to GitHub Pages, but only after the jsdom suites pass.
+# Set Settings -> Pages -> Source: GitHub Actions for this to be the publisher.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a run finish rather than cancelling it mid-deploy; queue the next one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Suites
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install jsdom
+        working-directory: tests
+        run: npm ci || npm install
+
+      - name: Run the suites
+        working-directory: tests
+        run: npm test
+
+      - name: Syntax gate every page
+        run: |
+          set -e
+          for f in index.html tracker.html deck/ep1.html docs/plan.html docs/format.html; do
+            node -e "
+              const fs = require('fs');
+              const h = fs.readFileSync('$f', 'utf8');
+              const m = h.match(/<script>([\s\S]*?)<\/script>/);
+              if (!m) { console.error('no inline script in $f'); process.exit(1); }
+              fs.writeFileSync('/tmp/gate.js', m[1]);
+            "
+            node --check /tmp/gate.js
+            echo "ok  $f"
+          done
+
+  deploy:
+    name: Deploy
+    needs: test
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
