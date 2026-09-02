@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CLAW Fall Block — Sep 2 to Dec 2, 2026</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Fall Block">
+<meta name="theme-color" content="#FFFFFF">
+<meta name="color-scheme" content="light">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FFFFFF;
+  --ink:#000000;
+  --blue:#0B57D0;
+  --blue-wash:#EAF1FD;
+  --rule:#D6DCE4;
+  --muted:#586074;
+  --shade:#F5F7FA;
+  --sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.wrap{max-width:860px;margin:0 auto;padding:0 18px}
+a{color:var(--blue)}
+button{font-family:inherit;font-size:inherit;color:inherit}
+
+/* ---------- banner ---------- */
+#banner{display:none;background:var(--ink);color:var(--paper);padding:10px 18px;font-size:13px;line-height:1.4}
+#banner.show{display:block}
+#banner b{font-weight:600}
+
+/* ---------- masthead ---------- */
+header.top{border-bottom:2px solid var(--ink);padding:26px 0 0}
+.eyebrow{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.02em}
+h1{font-size:26px;line-height:1.15;margin:6px 0 2px;font-weight:600;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:14px;margin:0 0 18px}
+
+/* week strip: the hero */
+.strip{display:flex;gap:3px;margin:0 0 10px}
+.strip .cell{
+  flex:1;height:34px;border:1px solid var(--rule);border-radius:2px;background:var(--paper);
+  position:relative;display:flex;align-items:flex-end;justify-content:center;
+  font-family:var(--mono);font-size:10px;color:var(--muted);padding-bottom:2px;
+  cursor:pointer;overflow:hidden;
+}
+.strip .cell .fill{position:absolute;left:0;bottom:0;width:100%;background:var(--blue-wash);z-index:0}
+.strip .cell span{position:relative;z-index:1}
+.strip .cell.done{border-color:var(--blue)}
+.strip .cell.done span{color:var(--blue);font-weight:600}
+.strip .cell.now{border:2px solid var(--ink)}
+.strip .cell.buffer{background:repeating-linear-gradient(135deg,var(--shade),var(--shade) 4px,var(--paper) 4px,var(--paper) 8px)}
+.strip .cell:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+
+.meter{display:flex;align-items:baseline;gap:10px;padding:0 0 16px}
+.meter .big{font-family:var(--mono);font-size:34px;font-weight:600;line-height:1}
+.meter .lab{font-size:13px;color:var(--muted)}
+
+/* ---------- tabs ---------- */
+nav.tabs{position:sticky;top:0;z-index:20;background:var(--paper);border-bottom:1px solid var(--rule);
+  display:flex;gap:2px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+nav.tabs button{
+  background:none;border:0;border-bottom:2px solid transparent;padding:12px 14px;
+  white-space:nowrap;color:var(--muted);cursor:pointer;font-weight:500;font-size:14px}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--blue)}
+nav.tabs button:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+
+main{padding:22px 0 60px}
+section[hidden]{display:none}
+
+/* ---------- goal ---------- */
+.goal{border:2px solid var(--ink);padding:16px;margin:0 0 26px}
+.goal h2{font-size:15px;margin:0 0 10px;font-weight:600}
+.goal p{margin:0 0 14px;font-size:15px;line-height:1.55}
+.clause{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--rule);font-size:14px}
+.clause .mark{font-family:var(--mono);font-size:12px;color:var(--muted);min-width:26px}
+.clause.hit .mark{color:var(--blue);font-weight:600}
+.clause.hit .txt{color:var(--blue)}
+
+/* ---------- week cards ---------- */
+.week{border:1px solid var(--rule);margin:0 0 12px;background:var(--paper)}
+.week.now{border:2px solid var(--ink)}
+.week.buffer{background:var(--shade)}
+.week > .head{display:flex;align-items:center;gap:12px;padding:13px 14px;cursor:pointer;user-select:none}
+.week > .head:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+.wk-no{font-family:var(--mono);font-size:12px;color:var(--muted);min-width:26px}
+.wk-date{font-family:var(--mono);font-size:14px;font-weight:600;min-width:62px}
+.wk-title{flex:1;font-size:14px;line-height:1.35}
+.wk-count{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.week.complete .wk-count{color:var(--blue);font-weight:600}
+.chev{width:10px;height:10px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);
+  transform:rotate(45deg);transition:transform .15s;flex:none;margin-left:2px}
+.week.open .chev{transform:rotate(-135deg)}
+.body{display:none;padding:0 14px 14px}
+.week.open .body{display:block}
+.lane{font-family:var(--mono);font-size:11px;color:var(--muted);padding:10px 0 4px;border-top:1px solid var(--rule);margin-top:8px}
+
+/* ---------- tasks ---------- */
+.task{display:flex;gap:11px;align-items:flex-start;padding:8px 0;cursor:pointer}
+.task input{position:absolute;opacity:0;width:0;height:0}
+.box{width:18px;height:18px;border:1.5px solid var(--muted);border-radius:2px;flex:none;margin-top:2px;
+  display:flex;align-items:center;justify-content:center}
+.task input:checked ~ .box{background:var(--blue);border-color:var(--blue)}
+.task input:checked ~ .box::after{content:"";width:5px;height:9px;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg) translate(-1px,-1px)}
+.task input:focus-visible ~ .box{outline:2px solid var(--blue);outline-offset:2px}
+.task .txt{font-size:14.5px;line-height:1.45}
+.task input:checked ~ .txt{color:var(--muted);text-decoration:line-through}
+
+/* ---------- episodes ---------- */
+.ep{border:1px solid var(--rule);padding:14px;margin:0 0 12px}
+.ep.done{border-color:var(--blue)}
+.ep h3{margin:0;font-size:15px;font-weight:600}
+.ep .parts{font-family:var(--mono);font-size:12px;color:var(--muted);margin:4px 0 12px;word-break:break-word}
+.ep .why{font-size:13.5px;color:var(--muted);margin:0 0 12px;line-height:1.45}
+.rail{display:flex;gap:4px}
+.rail button{
+  flex:1;border:1px solid var(--rule);background:var(--paper);border-radius:2px;padding:9px 2px;
+  font-family:var(--mono);font-size:10.5px;color:var(--muted);cursor:pointer;line-height:1.2}
+.rail button[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
+.rail button:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+
+/* ---------- log ---------- */
+.logrow{border:1px solid var(--rule);padding:12px 14px;margin:0 0 10px}
+.logrow.now{border:2px solid var(--ink)}
+.logrow .lh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0 0 8px}
+.logrow .lh b{font-family:var(--mono);font-size:13px}
+.logrow .lh span{font-size:12px;color:var(--muted)}
+textarea{width:100%;min-height:74px;border:1px solid var(--rule);border-radius:2px;padding:9px;
+  font-family:var(--sans);font-size:14px;line-height:1.5;resize:vertical;background:var(--paper);color:var(--ink)}
+textarea:focus{outline:2px solid var(--blue);outline-offset:-1px;border-color:var(--blue)}
+
+/* ---------- reference ---------- */
+.ref h3{font-size:15px;margin:24px 0 8px;font-weight:600}
+.ref h3:first-child{margin-top:0}
+.ref p,.ref li{font-size:14.5px;line-height:1.6;color:var(--ink)}
+.ref ul{padding-left:20px;margin:8px 0}
+.flag{border-left:3px solid var(--blue);background:var(--blue-wash);padding:12px 14px;margin:10px 0}
+.flag p{margin:0 0 8px}
+.flag p:last-child{margin:0}
+
+/* ---------- data ---------- */
+.btnrow{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.btn{border:1.5px solid var(--ink);background:var(--paper);padding:10px 16px;border-radius:2px;
+  cursor:pointer;font-weight:500;font-size:14px}
+.btn:hover{background:var(--shade)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.primary:hover{background:#0846ad}
+.btn:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.note{font-size:13.5px;color:var(--muted);line-height:1.55}
+#io{width:100%;min-height:130px;font-family:var(--mono);font-size:11.5px}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:#fff;
+  padding:10px 18px;border-radius:3px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:50}
+#toast.show{opacity:1}
+
+@media (max-width:520px){
+  h1{font-size:22px}
+  .strip .cell{height:30px;font-size:9px}
+  .meter .big{font-size:28px}
+  .wk-title{font-size:13.5px}
+  .rail{flex-wrap:wrap}
+  .rail button{flex:1 1 30%}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="banner"><b>Saving is off.</b> This browser blocked local storage, so ticks will vanish when you close the tab. Use Export on the Data tab to keep your progress.</div>
+
+<header class="top">
+  <div class="wrap">
+    <div class="eyebrow">CLAW Engineering · fall build block</div>
+    <h1>Six episodes, a live site, and a motor-node BOM by December 2</h1>
+    <p class="sub">Wednesdays 5–8pm, plus a Saturday morning. Fourteen weeks.</p>
+    <div class="strip" id="strip" role="list" aria-label="Weeks"></div>
+    <div class="meter">
+      <div class="big" id="pct">0%</div>
+      <div class="lab" id="metaline">nothing ticked yet</div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs wrap" role="tablist" aria-label="Sections">
+  <button role="tab" id="t-plan" aria-controls="s-plan" aria-selected="true">Plan</button>
+  <button role="tab" id="t-eps" aria-controls="s-eps" aria-selected="false">Episodes</button>
+  <button role="tab" id="t-log" aria-controls="s-log" aria-selected="false">Log</button>
+  <button role="tab" id="t-ref" aria-controls="s-ref" aria-selected="false">Rules</button>
+  <button role="tab" id="t-data" aria-controls="s-data" aria-selected="false">Data</button>
+</nav>
+
+<main class="wrap">
+
+<section id="s-plan" role="tabpanel" aria-labelledby="t-plan">
+  <div class="goal">
+    <h2>The December goal</h2>
+    <p>By Wednesday, December 2, 2026: The Spec Check is a live channel with six published episodes, running on a repeatable pipeline, hosted from a portfolio site on your own domain — and episodes 4–6 have specified the bill of materials for the Q1 LQR motor node.</p>
+    <div id="clauses"></div>
+  </div>
+  <div class="btnrow">
+    <button class="btn" id="jump">Go to this week</button>
+    <button class="btn" id="expandAll">Open all weeks</button>
+  </div>
+  <div id="weeks"></div>
+</section>
+
+<section id="s-eps" role="tabpanel" aria-labelledby="t-eps" hidden>
+  <p class="note" style="margin:0 0 16px">Tap a stage to mark it done. Episodes 4, 5 and 6 are the motor-node bill of materials — the research counts twice.</p>
+  <div id="eps"></div>
+</section>
+
+<section id="s-log" role="tabpanel" aria-labelledby="t-log" hidden>
+  <p class="note" style="margin:0 0 16px">Last ten minutes of every session: what shipped, what's blocked, what's first next Wednesday.</p>
+  <div id="logs"></div>
+</section>
+
+<section id="s-ref" role="tabpanel" aria-labelledby="t-ref" hidden class="ref">
+  <h3>Live flag: patent disclosure</h3>
+  <div class="flag">
+    <p>Episode 1 covers the <b>BQ21040</b> and episode 3 covers the <b>ESP32-C3</b>. Both are in the Sidestream V2 power chain, and the provisional runs to June 2027.</p>
+    <p>The part is fair game. The application is not. Never show or describe those parts in the context of a handheld filtration device, and if an episode starts wanting a real-world example, pick a different one. Run anything borderline past your patent attorney first.</p>
+  </div>
+
+  <h3>Contingency rules, decided in advance</h3>
+  <ul>
+    <li><b>Interview weeks.</b> A technical round converts that Wednesday to prep and slips the episode a week. Two such weeks are budgeted. A third drops the target to five episodes — that's the right trade, not a failure.</li>
+    <li><b>If the pill sorter converts to paid work.</b> Paid client work outranks unpaid content. It displaces episodes 5 and 6, and December becomes four published episodes plus a delivered feasibility engagement.</li>
+    <li><b>October 21 checkpoint.</b> Three episodes in: is an episode costing 6 hours or 10, and is anything landing? If it's 10, cut scope — three parts becomes two, ten minutes becomes six. Cut scope, never sessions.</li>
+    <li><b>No offer by mid-October.</b> Reallocate one Wednesday per fortnight to applications and outreach. Episodes go monthly, December target becomes four. The job is priority one and the schedule should visibly bend to it.</li>
+    <li><b>November 25 is empty on purpose.</b> Thanksgiving eve, and your recovery slot if you're a week behind. Don't spend it in advance.</li>
+  </ul>
+
+  <h3>Session shape</h3>
+  <ul>
+    <li>5:00–5:15 — read last week's log, write down tonight's single deliverable</li>
+    <li>5:15–6:45 — deep block one, the hardest task, no exceptions</li>
+    <li>6:45–7:00 — break, away from the desk</li>
+    <li>7:00–7:50 — deep block two</li>
+    <li>7:50–8:00 — log it</li>
+  </ul>
+  <p>Wednesday is thinking work: research, scripting, decisions. Saturday is mechanical work: recording, rendering, thumbnails, upload. Recording needs a quiet house and rendering is dead time; neither deserves your best three hours of the week.</p>
+
+  <h3>Parked until January</h3>
+  <p>LQR episode production, Sidestream V2, pill-sorter build work, PE licensure paperwork, VoltIQ, CLAW Bench, Burger Bar, the MLB pipeline. The PE track's real bottleneck is a thirty-minute conversation with IMEG about supervision, not Wednesday-night hours.</p>
+
+  <h3>Before you script any episode</h3>
+  <p>Check NRND and end-of-life status against the manufacturer's own page for every part, note the datasheet revision on screen, and keep the manufacturer's spec visibly separate from what a hobbyist blog claims. That separation is the channel's whole credibility, and it's cheap if you do it from episode one.</p>
+</section>
+
+<section id="s-data" role="tabpanel" aria-labelledby="t-data" hidden>
+  <p class="note">Progress saves to whichever browser you are in. To move it to your phone, press <b>Copy link with progress</b> and open that link there — it carries your ticks with it. Export is the belt-and-braces version.</p>
+  <div class="btnrow">
+    <button class="btn primary" id="exp">Export progress</button>
+    <button class="btn" id="imp">Import from box</button>
+    <button class="btn" id="copy">Copy to clipboard</button>
+    <button class="btn" id="link">Copy link with progress</button>
+    <button class="btn" id="reset">Clear everything</button>
+  </div>
+  <textarea id="io" spellcheck="false" placeholder="Export drops your progress here. To import, paste an export in and press Import."></textarea>
+  <p class="note" id="storagestate" style="margin-top:14px"></p>
+</section>
+
+</main>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============ DATA ============ */
+var WEEKS = [
+ {n:1, d:"2026-09-02", t:"Channel spec and the deck template", tasks:[
+   {id:"w1a", w:"wed", x:"Decide the name and handle, and check both are free"},
+   {id:"w1b", w:"wed", x:"Write the episode format spec: length, section order, how every episode opens and closes"},
+   {id:"w1c", w:"wed", x:"Build the Spec Check deck template as a single-file HTML"},
+   {id:"w1d", w:"wed", x:"Build the thumbnail template"},
+   {id:"w1e", w:"sat", x:"Record five throwaway minutes to test the audio chain"}
+ ]},
+ {n:2, d:"2026-09-09", t:"Portfolio deploy — the thing that's built but not live", tasks:[
+   {id:"w2a", w:"wed", x:"Buy the domain and point DNS"},
+   {id:"w2b", w:"wed", x:"Deploy the August rebuild to Cloudflare Pages"},
+   {id:"w2c", w:"wed", x:"Replace every Imgur hotlink with a local asset"},
+   {id:"w2d", w:"wed", x:"Serve the résumé from the site, not from Dropbox"},
+   {id:"w2e", w:"sat", x:"Check the OG card, favicon and mobile layout on a real phone"}
+ ]},
+ {n:3, d:"2026-09-16", t:"Episode 1 — charge ICs", tasks:[
+   {id:"w3a", w:"wed", x:"Pull all three datasheets and note the revision numbers"},
+   {id:"w3b", w:"wed", x:"Check NRND and EOL status on BQ21040, TP4056, MCP73831"},
+   {id:"w3c", w:"wed", x:"Write the episode 1 script"},
+   {id:"w3d", w:"sat", x:"Record and rough-cut episode 1"}
+ ]},
+ {n:4, d:"2026-09-23", t:"Publish episode 1", tasks:[
+   {id:"w4a", w:"wed", x:"Final cut"},
+   {id:"w4b", w:"wed", x:"Thumbnail, description, chapters"},
+   {id:"w4c", w:"wed", x:"Publish episode 1"},
+   {id:"w4d", w:"wed", x:"Write the upload checklist while it's still fresh"}
+ ]},
+ {n:5, d:"2026-09-30", t:"Episode 2 — buck regulators", tasks:[
+   {id:"w5a", w:"wed", x:"Datasheets and part status: LM2596, MP1584, TPS5430"},
+   {id:"w5b", w:"wed", x:"Write the episode 2 script"},
+   {id:"w5c", w:"sat", x:"Record and cut episode 2"}
+ ]},
+ {n:6, d:"2026-10-07", t:"Publish episode 2, then the honest hours count", tasks:[
+   {id:"w6a", w:"wed", x:"Publish episode 2"},
+   {id:"w6b", w:"wed", x:"Log what episodes 1 and 2 actually cost in hours"},
+   {id:"w6c", w:"wed", x:"If either ran past eight hours, cut the format down now"}
+ ]},
+ {n:7, d:"2026-10-14", t:"Episode 3 — the MCU comparison, your traffic episode", tasks:[
+   {id:"w7a", w:"wed", x:"Datasheets and part status: ESP32-C3, ESP32-S3, RP2040"},
+   {id:"w7b", w:"wed", x:"Write the episode 3 script — give it the whole block"},
+   {id:"w7c", w:"sat", x:"Record and cut episode 3"}
+ ]},
+ {n:8, d:"2026-10-21", t:"Publish episode 3, then the checkpoint", tasks:[
+   {id:"w8a", w:"wed", x:"Publish episode 3"},
+   {id:"w8b", w:"wed", x:"Checkpoint: what does an episode really cost, and is anything landing?"},
+   {id:"w8c", w:"wed", x:"Job call — if there's still no offer, reallocate a Wednesday per fortnight to applications"}
+ ]},
+ {n:9, d:"2026-10-28", t:"Episode 4 — motor drivers", tasks:[
+   {id:"w9a", w:"wed", x:"Datasheets and part status: DRV8833, TB6612FNG, L298N"},
+   {id:"w9b", w:"wed", x:"Write the episode 4 script"},
+   {id:"w9c", w:"wed", x:"Note the motor-node candidate and why it won"},
+   {id:"w9d", w:"sat", x:"Record and cut episode 4"}
+ ]},
+ {n:10, d:"2026-11-04", t:"Publish episode 4", tasks:[
+   {id:"w10a", w:"wed", x:"Publish episode 4"},
+   {id:"w10b", w:"wed", x:"Start episode 5 research early if you're ahead"}
+ ]},
+ {n:11, d:"2026-11-11", t:"Episode 5 — IMUs", tasks:[
+   {id:"w11a", w:"wed", x:"Datasheets and part status: MPU6050, ICM-42688-P, BNO055"},
+   {id:"w11b", w:"wed", x:"Research the MPU6050 angle — is it still defensible in 2026?"},
+   {id:"w11c", w:"wed", x:"Write the episode 5 script"},
+   {id:"w11d", w:"sat", x:"Record and cut episode 5"}
+ ]},
+ {n:12, d:"2026-11-18", t:"Publish episode 5 and get ahead of episode 6", tasks:[
+   {id:"w12a", w:"wed", x:"Publish episode 5"},
+   {id:"w12b", w:"wed", x:"Episode 6 research: INA219 shunt, ACS712, hall-effect"},
+   {id:"w12c", w:"wed", x:"Write the episode 6 script"},
+   {id:"w12d", w:"sat", x:"Record and cut episode 6"}
+ ]},
+ {n:13, d:"2026-11-25", t:"Buffer week — Thanksgiving eve. Take it off, or catch up.", buffer:true, tasks:[]},
+ {n:14, d:"2026-12-02", t:"Publish episode 6, review, hand off to Q1", tasks:[
+   {id:"w14a", w:"wed", x:"Publish episode 6"},
+   {id:"w14b", w:"wed", x:"Ninety-day review: hours spent, episodes shipped, what the channel did"},
+   {id:"w14c", w:"wed", x:"Finalise the motor-node BOM from episodes 4, 5 and 6"},
+   {id:"w14d", w:"wed", x:"Write the handoff doc into the LQR series for January"}
+ ]}
+];
+
+var STAGES = ["research","script","record","cut","publish"];
+
+var EPS = [
+ {id:"e1", n:1, name:"Charging a lithium cell three ways",
+  parts:"BQ21040 · TP4056 · MCP73831",
+  why:"You've shipped a BQ21040 design, so this is the cheapest research while the pipeline is still being built. Your first video is your worst one no matter the topic — spend that cost here."},
+ {id:"e2", n:2, name:"The two-dollar buck module versus a real design",
+  parts:"LM2596 · MP1584 · TPS5430",
+  why:"Sits directly on your MEP power instincts. Efficiency curves, thermals, and what the module listing doesn't tell you."},
+ {id:"e3", n:3, name:"Which microcontroller, and why the cheap answer is usually wrong",
+  parts:"ESP32-C3 · ESP32-S3 · RP2040",
+  why:"Highest search volume of the six. It lands in mid-October, once the format is stable and there are two videos behind it for a new viewer to click into."},
+ {id:"e4", n:4, name:"Driving a small DC motor without cooking it",
+  parts:"DRV8833 · TB6612FNG · L298N",
+  why:"Motor-node BOM. Whatever wins here goes on the Q1 board."},
+ {id:"e5", n:5, name:"The IMU everyone uses and the two that beat it",
+  parts:"MPU6050 · ICM-42688-P · BNO055",
+  why:"Motor-node BOM, and the direct setup for state estimation in the LQR series."},
+ {id:"e6", n:6, name:"Measuring current three ways",
+  parts:"INA219 shunt · ACS712 · hall-effect",
+  why:"Motor-node BOM. This is the closed-loop feedback path — the episode is the design decision."}
+];
+
+var CLAUSES = [
+ {id:"c1", txt:"Six episodes published", test:function(s){var n=0;EPS.forEach(function(e){if(s.ticks[e.id+":publish"])n++;});return n>=6;}, prog:function(s){var n=0;EPS.forEach(function(e){if(s.ticks[e.id+":publish"])n++;});return n+" of 6";}},
+ {id:"c2", txt:"A repeatable pipeline — format spec, deck template, upload checklist", test:function(s){return !!(s.ticks.w1b&&s.ticks.w1c&&s.ticks.w4d);}, prog:function(s){var n=(s.ticks.w1b?1:0)+(s.ticks.w1c?1:0)+(s.ticks.w4d?1:0);return n+" of 3";}},
+ {id:"c3", txt:"Portfolio live on your own domain", test:function(s){return !!(s.ticks.w2a&&s.ticks.w2b);}, prog:function(s){var n=(s.ticks.w2a?1:0)+(s.ticks.w2b?1:0);return n+" of 2";}},
+ {id:"c4", txt:"Motor-node BOM specified out of episodes 4 to 6", test:function(s){return !!s.ticks.w14c;}, prog:function(s){return s.ticks.w14c?"done":"open";}}
+];
+
+/* ============ STATE ============ */
+var KEY = "claw.fallblock.v1";
+var storageOK = true;
+var state = {v:1, ticks:{}, notes:{}, open:{}};
+
+function load(){
+  var raw = null;
+  try{
+    raw = window.localStorage.getItem(KEY);
+    window.localStorage.setItem(KEY+".probe","1");
+    window.localStorage.removeItem(KEY+".probe");
+  }catch(e){
+    storageOK = false;
+    var b = document.getElementById("banner");
+    if(b) b.className = "show";
+    return;
+  }
+  if(!raw) return;
+  /* a corrupt payload is not a storage failure — drop it and carry on */
+  try{ merge(JSON.parse(raw)); }catch(e2){}
+}
+function merge(o){
+  if(!o || typeof o !== "object") return false;
+  if(o.ticks && typeof o.ticks === "object") state.ticks = o.ticks;
+  if(o.notes && typeof o.notes === "object") state.notes = o.notes;
+  if(o.open  && typeof o.open  === "object") state.open  = o.open;
+  return true;
+}
+function save(){
+  if(!storageOK) return false;
+  try{ window.localStorage.setItem(KEY, JSON.stringify(state)); return true; }
+  catch(e){
+    storageOK = false;
+    var b = document.getElementById("banner");
+    if(b) b.className = "show";
+    return false;
+  }
+}
+
+/* ============ HELPERS ============ */
+function el(tag, cls, txt){
+  var n = document.createElement(tag);
+  if(cls) n.className = cls;
+  if(txt !== undefined && txt !== null) n.textContent = txt;
+  return n;
+}
+function shortDate(iso){
+  var p = iso.split("-");
+  var m = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][parseInt(p[1],10)-1];
+  return m+" "+parseInt(p[2],10);
+}
+function weekTotals(w){
+  var done = 0;
+  for(var i=0;i<w.tasks.length;i++){ if(state.ticks[w.tasks[i].id]) done++; }
+  return {done:done, total:w.tasks.length};
+}
+function allTotals(){
+  var done=0, total=0;
+  WEEKS.forEach(function(w){ var t=weekTotals(w); done+=t.done; total+=t.total; });
+  EPS.forEach(function(e){
+    STAGES.forEach(function(s){ total++; if(state.ticks[e.id+":"+s]) done++; });
+  });
+  return {done:done, total:total};
+}
+/* index of the week containing today; -1 before the block, WEEKS.length-1 after */
+function currentWeek(today){
+  var t = today || new Date();
+  var stamp = t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-"+String(t.getDate()).padStart(2,"0");
+  var idx = -1;
+  for(var i=0;i<WEEKS.length;i++){ if(WEEKS[i].d <= stamp) idx = i; }
+  return idx;
+}
+function toast(msg){
+  var t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "show";
+  window.setTimeout(function(){ t.className = ""; }, 1900);
+}
+
+/* ============ RENDER ============ */
+var NOW = currentWeek();
+
+function renderStrip(){
+  var host = document.getElementById("strip");
+  host.textContent = "";
+  WEEKS.forEach(function(w, i){
+    var c = el("button","cell");
+    c.setAttribute("type","button");
+    c.setAttribute("role","listitem");
+    var tot = weekTotals(w);
+    var ratio = tot.total ? tot.done/tot.total : (w.buffer ? 0 : 0);
+    var fill = el("div","fill");
+    fill.style.height = Math.round(ratio*100)+"%";
+    c.appendChild(fill);
+    c.appendChild(el("span", null, String(w.n)));
+    if(w.buffer) c.className += " buffer";
+    if(tot.total && tot.done === tot.total) c.className += " done";
+    if(i === NOW) c.className += " now";
+    c.title = "Week "+w.n+" · "+shortDate(w.d)+" · "+tot.done+"/"+tot.total;
+    c.setAttribute("aria-label","Week "+w.n+", "+shortDate(w.d)+", "+tot.done+" of "+tot.total+" done");
+    c.addEventListener("click", function(){ goToWeek(i); });
+    host.appendChild(c);
+  });
+}
+
+function renderMeter(){
+  var a = allTotals();
+  var pct = a.total ? Math.round(a.done/a.total*100) : 0;
+  document.getElementById("pct").textContent = pct+"%";
+  var pubs = 0;
+  EPS.forEach(function(e){ if(state.ticks[e.id+":publish"]) pubs++; });
+  var left = WEEKS.length - 1 - NOW;
+  if(left < 0) left = WEEKS.length;
+  var bits = [a.done+" of "+a.total+" done", pubs+" of 6 published"];
+  if(left > 0) bits.push(left+(left===1?" week left":" weeks left"));
+  document.getElementById("metaline").textContent = bits.join(" · ");
+}
+
+function renderClauses(){
+  var host = document.getElementById("clauses");
+  host.textContent = "";
+  CLAUSES.forEach(function(c){
+    var row = el("div","clause"+(c.test(state)?" hit":""));
+    row.appendChild(el("div","mark", c.test(state) ? "done" : c.prog(state)));
+    row.appendChild(el("div","txt", c.txt));
+    host.appendChild(row);
+  });
+}
+
+function taskNode(t){
+  var lab = el("label","task");
+  var inp = document.createElement("input");
+  inp.type = "checkbox";
+  inp.id = "chk-"+t.id;
+  inp.checked = !!state.ticks[t.id];
+  inp.addEventListener("change", function(){
+    if(inp.checked) state.ticks[t.id] = true; else delete state.ticks[t.id];
+    save(); refresh();
+  });
+  lab.appendChild(inp);
+  lab.appendChild(el("span","box"));
+  lab.appendChild(el("span","txt", t.x));
+  return lab;
+}
+
+function renderWeeks(){
+  var host = document.getElementById("weeks");
+  host.textContent = "";
+  WEEKS.forEach(function(w, i){
+    var tot = weekTotals(w);
+    var card = el("div","week");
+    if(i === NOW) card.className += " now";
+    if(w.buffer) card.className += " buffer";
+    if(tot.total && tot.done === tot.total) card.className += " complete";
+    if(state.open[w.n]) card.className += " open";
+    card.id = "week-"+w.n;
+
+    var head = el("div","head");
+    head.setAttribute("tabindex","0");
+    head.setAttribute("role","button");
+    head.setAttribute("aria-expanded", state.open[w.n] ? "true" : "false");
+    head.appendChild(el("div","wk-no", String(w.n)));
+    head.appendChild(el("div","wk-date", shortDate(w.d)));
+    head.appendChild(el("div","wk-title", w.t));
+    head.appendChild(el("div","wk-count", w.buffer ? "—" : tot.done+"/"+tot.total));
+    head.appendChild(el("div","chev"));
+    function toggle(){
+      if(state.open[w.n]) delete state.open[w.n]; else state.open[w.n] = true;
+      save(); refresh();
+    }
+    head.addEventListener("click", toggle);
+    head.addEventListener("keydown", function(ev){
+      if(ev.key === "Enter" || ev.key === " "){ ev.preventDefault(); toggle(); }
+    });
+    card.appendChild(head);
+
+    var body = el("div","body");
+    if(w.buffer){
+      body.appendChild(el("p","note","Nothing scheduled. If you're on time, take the night off. If you're a week behind, this is where you catch up. Don't spend it in advance."));
+    } else {
+      var wed = w.tasks.filter(function(t){ return t.w === "wed"; });
+      var sat = w.tasks.filter(function(t){ return t.w === "sat"; });
+      if(wed.length){
+        body.appendChild(el("div","lane","Wednesday 5–8pm"));
+        wed.forEach(function(t){ body.appendChild(taskNode(t)); });
+      }
+      if(sat.length){
+        body.appendChild(el("div","lane","Saturday morning"));
+        sat.forEach(function(t){ body.appendChild(taskNode(t)); });
+      }
+    }
+    card.appendChild(body);
+    host.appendChild(card);
+  });
+}
+
+function renderEps(){
+  var host = document.getElementById("eps");
+  host.textContent = "";
+  EPS.forEach(function(e){
+    var done = STAGES.every(function(s){ return !!state.ticks[e.id+":"+s]; });
+    var card = el("div","ep"+(done?" done":""));
+    card.appendChild(el("h3", null, "Episode "+e.n+" — "+e.name));
+    card.appendChild(el("div","parts", e.parts));
+    card.appendChild(el("p","why", e.why));
+    var rail = el("div","rail");
+    STAGES.forEach(function(s){
+      var k = e.id+":"+s;
+      var b = el("button", null, s);
+      b.setAttribute("type","button");
+      b.setAttribute("aria-pressed", state.ticks[k] ? "true" : "false");
+      b.setAttribute("aria-label","Episode "+e.n+" "+s);
+      b.addEventListener("click", function(){
+        if(state.ticks[k]) delete state.ticks[k]; else state.ticks[k] = true;
+        save(); refresh();
+      });
+      rail.appendChild(b);
+    });
+    card.appendChild(rail);
+    host.appendChild(card);
+  });
+}
+
+function renderLogs(){
+  var host = document.getElementById("logs");
+  host.textContent = "";
+  WEEKS.forEach(function(w, i){
+    var row = el("div","logrow"+(i===NOW?" now":""));
+    var lh = el("div","lh");
+    var b = el("b", null, "Week "+w.n+" · "+shortDate(w.d));
+    lh.appendChild(b);
+    lh.appendChild(el("span", null, i===NOW ? "this week" : w.t));
+    row.appendChild(lh);
+    var ta = document.createElement("textarea");
+    ta.value = state.notes[w.n] || "";
+    ta.placeholder = "Shipped… / Blocked… / First thing next Wednesday…";
+    ta.setAttribute("aria-label","Notes for week "+w.n);
+    ta.addEventListener("input", function(){
+      if(ta.value) state.notes[w.n] = ta.value; else delete state.notes[w.n];
+      save();
+    });
+    row.appendChild(ta);
+    host.appendChild(row);
+  });
+}
+
+function refresh(){
+  renderStrip(); renderMeter(); renderClauses(); renderWeeks(); renderEps();
+}
+
+function goToWeek(i){
+  var w = WEEKS[i];
+  state.open[w.n] = true; save();
+  showTab("plan");
+  refresh();
+  var node = document.getElementById("week-"+w.n);
+  if(node && node.scrollIntoView) node.scrollIntoView({block:"center"});
+}
+
+/* ============ TABS ============ */
+var TABS = ["plan","eps","log","ref","data"];
+function showTab(name){
+  TABS.forEach(function(t){
+    var btn = document.getElementById("t-"+t);
+    var sec = document.getElementById("s-"+t);
+    var on = (t === name);
+    btn.setAttribute("aria-selected", on ? "true" : "false");
+    if(on) sec.removeAttribute("hidden"); else sec.setAttribute("hidden","");
+  });
+}
+TABS.forEach(function(t){
+  document.getElementById("t-"+t).addEventListener("click", function(){ showTab(t); });
+});
+
+/* ============ DATA TAB ============ */
+document.getElementById("exp").addEventListener("click", function(){
+  document.getElementById("io").value = JSON.stringify(state);
+  toast("Exported below");
+});
+document.getElementById("imp").addEventListener("click", function(){
+  var raw = document.getElementById("io").value.trim();
+  if(!raw){ toast("Paste an export into the box first"); return; }
+  var parsed;
+  try{ parsed = JSON.parse(raw); }
+  catch(e){ toast("That isn't a valid export"); return; }
+  if(!merge(parsed)){ toast("That isn't a valid export"); return; }
+  save(); NOW = currentWeek(); refresh(); renderLogs();
+  toast("Progress imported");
+});
+document.getElementById("copy").addEventListener("click", function(){
+  var box = document.getElementById("io");
+  if(!box.value) box.value = JSON.stringify(state);
+  box.select();
+  var ok = false;
+  try{ ok = document.execCommand("copy"); }catch(e){ ok = false; }
+  if(!ok && navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(box.value).then(function(){ toast("Copied"); },
+      function(){ toast("Copy blocked — select the text and copy it"); });
+    return;
+  }
+  toast(ok ? "Copied" : "Copy blocked — select the text and copy it");
+});
+document.getElementById("reset").addEventListener("click", function(){
+  if(!window.confirm("Clear every tick and note? This can't be undone.")) return;
+  state.ticks = {}; state.notes = {}; state.open = {};
+  save(); refresh(); renderLogs();
+  toast("Cleared");
+});
+document.getElementById("link").addEventListener("click", function(){
+  var url = shareLink();
+  if(!url){ toast("Couldn't build the link"); return; }
+  var box = document.getElementById("io");
+  box.value = url;
+  box.select();
+  var done = false;
+  try{ done = document.execCommand("copy"); }catch(e){ done = false; }
+  if(!done && navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(function(){ toast("Link copied — open it on your phone"); },
+      function(){ toast("Link is in the box — copy it from there"); });
+    return;
+  }
+  toast(done ? "Link copied — open it on your phone" : "Link is in the box — copy it from there");
+});
+document.getElementById("jump").addEventListener("click", function(){
+  goToWeek(NOW < 0 ? 0 : NOW);
+});
+document.getElementById("expandAll").addEventListener("click", function(){
+  var anyClosed = WEEKS.some(function(w){ return !state.open[w.n]; });
+  WEEKS.forEach(function(w){ if(anyClosed) state.open[w.n] = true; else delete state.open[w.n]; });
+  save(); refresh();
+  document.getElementById("expandAll").textContent = anyClosed ? "Close all weeks" : "Open all weeks";
+});
+
+
+/* ============ CROSS-DEVICE LINK ============ */
+function b64enc(s){
+  try{ return btoa(String.fromCharCode.apply(null, new TextEncoder().encode(s)))
+    .replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""); }
+  catch(e){ return null; }
+}
+function b64dec(s){
+  try{
+    var p = s.replace(/-/g,"+").replace(/_/g,"/");
+    while(p.length % 4) p += "=";
+    var bin = atob(p), arr = new Uint8Array(bin.length);
+    for(var j=0;j<bin.length;j++) arr[j] = bin.charCodeAt(j);
+    return new TextDecoder().decode(arr);
+  }catch(e){ return null; }
+}
+function readHash(){
+  var h = window.location.hash || "";
+  if(h.indexOf("#s=") !== 0) return false;
+  var json = b64dec(h.slice(3));
+  if(!json) return false;
+  var parsed;
+  try{ parsed = JSON.parse(json); }catch(e){ return false; }
+  if(!merge(parsed)) return false;
+  save();
+  try{ window.history.replaceState(null, "", window.location.pathname + window.location.search); }
+  catch(e){ /* older browsers keep the hash; harmless */ }
+  return true;
+}
+function shareLink(){
+  var enc = b64enc(JSON.stringify(state));
+  if(!enc) return null;
+  return window.location.origin + window.location.pathname + "#s=" + enc;
+}
+
+/* ============ BOOT ============ */
+load();
+var fromLink = readHash();
+NOW = currentWeek();
+if(NOW >= 0 && !Object.keys(state.open).length) state.open[WEEKS[NOW].n] = true;
+refresh();
+renderLogs();
+if(fromLink) toast("Progress loaded from the link");
+if("serviceWorker" in navigator){ window.addEventListener("load", function(){
+  navigator.serviceWorker.register("./sw.js").catch(function(){});
+});}
+document.getElementById("storagestate").textContent = storageOK
+  ? "Saving to this browser is working."
+  : "Saving is off in this browser. Export before you close the tab.";
+
+/* exposed for tests */
+window.__claw = {b64enc:b64enc, b64dec:b64dec, shareLink:shareLink, readHash:readHash, WEEKS:WEEKS, EPS:EPS, STAGES:STAGES, CLAUSES:CLAUSES, state:state,
+  currentWeek:currentWeek, allTotals:allTotals, weekTotals:weekTotals, merge:merge,
+  shortDate:shortDate, refresh:refresh, renderLogs:renderLogs, showTab:showTab};
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Spec Check — Ep 1 deck · CLAWSEngineering</title>
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Spec Check">
+<meta name="theme-color" content="#FFFFFF">
+<meta name="color-scheme" content="light">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FFFFFF; --ink:#000000; --blue:#0B57D0; --wash:#EAF1FD;
+  --rule:#D6DCE4; --muted:#586074; --shade:#F5F7FA;
+  --sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%}
+body{background:var(--shade);color:var(--ink);font-family:var(--sans);overflow:hidden}
+body.notesopen{overflow:auto}
+
+/* ---------- chrome ---------- */
+#bar{position:fixed;top:0;left:0;right:0;height:42px;background:var(--paper);border-bottom:1px solid var(--rule);
+  display:flex;align-items:center;gap:14px;padding:0 12px;z-index:30;font-size:13px}
+#bar .brand{font-family:var(--mono);font-weight:600;font-size:12px}
+#bar .ep{color:var(--muted);font-size:12px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#bar .clock{font-family:var(--mono);font-size:13px;min-width:52px;text-align:right}
+#bar .count{font-family:var(--mono);font-size:12px;color:var(--muted)}
+#bar .fills{font-family:var(--mono);font-size:11px;color:var(--blue);border:1px solid var(--blue);
+  border-radius:2px;padding:2px 6px}
+#bar .fills.clear{color:var(--muted);border-color:var(--rule)}
+.iconbtn{border:1px solid var(--rule);background:var(--paper);border-radius:2px;padding:5px 8px;
+  font-family:var(--mono);font-size:11px;cursor:pointer;color:var(--muted)}
+.iconbtn[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+.iconbtn:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+
+/* ---------- stage ---------- */
+#stagewrap{position:absolute;top:42px;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;padding:16px}
+#stage{width:1920px;height:1080px;background:var(--paper);position:relative;transform-origin:center center;
+  box-shadow:0 2px 18px rgba(0,0,0,.10);overflow:hidden}
+#safe{position:absolute;top:0;bottom:0;left:50%;width:1080px;transform:translateX(-50%);
+  border-left:2px dashed var(--blue);border-right:2px dashed var(--blue);background:rgba(11,87,208,.05);
+  display:none;pointer-events:none;z-index:5}
+#stage.showsafe #safe{display:block}
+#safe::after{content:"9:16 safe column";position:absolute;top:14px;left:50%;transform:translateX(-50%);
+  font-family:var(--mono);font-size:20px;color:var(--blue)}
+
+.slide{position:absolute;inset:0;padding:96px 120px;display:flex;flex-direction:column;justify-content:center}
+.slide.col{padding-left:420px;padding-right:420px}
+.eyebrow{font-family:var(--mono);font-size:26px;color:var(--muted);margin:0 0 26px;display:flex;gap:16px;align-items:center}
+.eyebrow .tag{border:2px solid var(--blue);color:var(--blue);border-radius:3px;padding:1px 10px;font-size:22px;font-weight:600}
+h1.big{font-size:112px;line-height:1.02;margin:0;font-weight:600;letter-spacing:-.025em}
+h2.head{font-size:76px;line-height:1.08;margin:0;font-weight:600;letter-spacing:-.02em}
+h3.mid{font-size:54px;line-height:1.15;margin:0 0 34px;font-weight:600;letter-spacing:-.015em}
+p.sub{font-size:38px;line-height:1.4;color:var(--muted);margin:30px 0 0;max-width:24ch}
+.slide.col p.sub{max-width:none}
+.rule{height:4px;background:var(--ink);width:110px;margin:34px 0 0}
+
+.three{display:flex;gap:28px;margin:44px 0 0}
+.slide.col .three{flex-direction:column;gap:22px}
+.three .card{flex:1;border:2px solid var(--rule);padding:32px}
+.three .card .pn{font-family:var(--mono);font-size:40px;font-weight:600;line-height:1.1}
+.three .card .mk{font-family:var(--mono);font-size:24px;color:var(--muted);margin:8px 0 20px}
+.three .card .ln{font-size:30px;line-height:1.35}
+
+.beats{margin:40px 0 0;border-top:3px solid var(--ink)}
+.beat{display:flex;gap:30px;padding:30px 0;border-bottom:1px solid var(--rule);align-items:flex-start}
+.beat .k{font-family:var(--mono);font-size:24px;color:var(--muted);min-width:210px;padding-top:8px}
+.beat .v{font-size:40px;line-height:1.25;flex:1}
+.slide.col .beat{flex-direction:column;gap:8px}
+.slide.col .beat .k{min-width:0;padding-top:0}
+
+.math{margin:44px 0 0;font-family:var(--mono)}
+.math .row{display:flex;gap:24px;align-items:baseline;padding:18px 0;border-bottom:1px solid var(--rule)}
+.math .row .lb{font-size:30px;color:var(--muted);min-width:340px}
+.math .row .vl{font-size:44px;font-weight:600}
+.math .out{margin-top:34px;background:var(--wash);border-left:8px solid var(--blue);padding:28px 32px;
+  font-size:48px;font-weight:600;font-family:var(--sans)}
+.slide.col .math .row{flex-direction:column;gap:2px}
+.slide.col .math .row .lb{min-width:0}
+
+table.vt{width:100%;border-collapse:collapse;margin:40px 0 0;font-size:32px}
+table.vt th,table.vt td{border-bottom:1px solid var(--rule);padding:22px 16px;text-align:left;vertical-align:top}
+table.vt th{font-family:var(--mono);font-size:24px;color:var(--muted);font-weight:500;border-bottom:3px solid var(--ink)}
+table.vt td.pick{font-family:var(--mono);font-weight:600;white-space:nowrap}
+
+.fill{color:var(--blue);border-bottom:3px dotted var(--blue);font-family:var(--mono);padding:0 4px}
+.outro{font-size:44px;line-height:1.35}
+.outro b{font-weight:600}
+
+#prog{position:absolute;left:0;bottom:0;height:6px;background:var(--blue);z-index:6}
+
+/* ---------- notes ---------- */
+#notes{position:fixed;left:0;right:0;bottom:0;max-height:44vh;overflow:auto;background:var(--paper);
+  border-top:2px solid var(--ink);padding:16px 18px 22px;z-index:25;display:none}
+body.notesopen #notes{display:block}
+#notes .nh{font-family:var(--mono);font-size:12px;color:var(--muted);margin:0 0 8px;
+  display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+#notes .nh .tag{border:1px solid var(--blue);color:var(--blue);border-radius:2px;padding:1px 7px;font-weight:600}
+#notes .script{font-size:17px;line-height:1.6;max-width:74ch;margin:0}
+#notes .hookline{font-size:17px;line-height:1.6;max-width:74ch;margin:0 0 10px;
+  border-left:3px solid var(--blue);padding-left:12px;background:var(--wash)}
+
+/* ---------- grid ---------- */
+#grid{position:fixed;inset:0;background:rgba(255,255,255,.98);z-index:40;overflow:auto;padding:56px 18px 40px;display:none}
+#grid.open{display:block}
+#grid h4{font-family:var(--mono);font-size:12px;color:var(--muted);margin:22px 0 10px;font-weight:500}
+#grid h4:first-of-type{margin-top:0}
+.gwrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;max-width:1000px;margin:0 auto}
+#grid .inner{max-width:1000px;margin:0 auto}
+.gcell{border:1px solid var(--rule);background:var(--paper);padding:10px;cursor:pointer;text-align:left;
+  min-height:78px;border-radius:2px}
+.gcell:hover{border-color:var(--blue)}
+.gcell.here{border:2px solid var(--ink)}
+.gcell .gn{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.gcell .gt{font-size:12.5px;line-height:1.3;margin-top:4px}
+.gcell .gc{font-family:var(--mono);font-size:10px;color:var(--blue);font-weight:600;margin-top:5px}
+.gcell:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+
+#help{position:fixed;right:12px;bottom:12px;font-family:var(--mono);font-size:11px;color:var(--muted);
+  background:var(--paper);border:1px solid var(--rule);border-radius:2px;padding:7px 10px;z-index:24;line-height:1.6}
+body.notesopen #help{display:none}
+@media (max-width:760px){ #help{display:none} #bar .ep{display:none} }
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div id="bar">
+  <span class="brand">CLAWSEngineering</span>
+  <span class="ep" id="epname"></span>
+  <span class="fills" id="fills"></span>
+  <span class="clock" id="clock">0:00</span>
+  <span class="count" id="count"></span>
+  <button class="iconbtn" id="bNotes" aria-pressed="false" title="Script (N)">script</button>
+  <button class="iconbtn" id="bSafe" aria-pressed="false" title="Vertical safe column (V)">9:16</button>
+  <button class="iconbtn" id="bGrid" title="All slides (G)">grid</button>
+  <button class="iconbtn" id="bFull" title="Fullscreen (F)">full</button>
+</div>
+
+<div id="stagewrap">
+  <div id="stage">
+    <div id="safe"></div>
+    <div class="slide" id="slide"></div>
+    <div id="prog"></div>
+  </div>
+</div>
+
+<div id="notes">
+  <div class="nh" id="notehead"></div>
+  <p class="hookline" id="hookline"></p>
+  <p class="script" id="script"></p>
+</div>
+
+<div id="grid"><div class="inner" id="gridinner"></div></div>
+
+<div id="help">← → move · N script · V 9:16 · G grid · F full · T timer</div>
+
+<script>
+(function(){
+"use strict";
+
+/* =====================================================================
+   EDIT HERE — everything above this line is the template, everything
+   below is one episode. To build episode 2, replace EPISODE and SLIDES.
+   Write [[fill]] anywhere a number must come off a datasheet; the bar
+   counts them and refuses to reach zero until you have read them.
+   ===================================================================== */
+
+var EPISODE = {
+  n: 1,
+  title: "Charging a lithium cell three ways",
+  parts: "BQ21040 · TP4056 · MCP73831",
+  target: 12*60
+};
+
+var SLIDES = [
+/* ---- open ---- */
+{k:"title", eyebrow:"The Spec Check · episode 1",
+ head:"Charging a lithium cell three ways",
+ sub:"BQ21040 · TP4056 · MCP73831",
+ script:"Cold open. Read the title, then go straight to the claim. No channel intro, no music sting — the first eight seconds decide whether anyone stays."},
+
+{k:"statement", eyebrow:"the claim",
+ head:"“The TP4056 is a dollar and does an amp. Why would you buy anything else?”",
+ sub:"That is the most common answer on every forum. It is also the reason a lot of boards come back dead.",
+ script:"State the claim flat, the way someone would actually say it. Do not sneer at it — it is a reasonable position and it is right most of the time. Then the turn: most of the time is not all of the time, and the failures are not random. Say what the episode will do: three chargers, one spec, and the arithmetic that decides it."},
+
+{k:"three", eyebrow:"the bench",
+ head:"Three parts, one job",
+ cards:[
+  {pn:"TP4056", mk:"[[fill]] · SOP-8", ln:"The marketplace default. Sold as a module more often than as a chip."},
+  {pn:"MCP73831", mk:"[[fill]] · SOT-23-5", ln:"Microchip's small one. Turns up wherever board area ran out."},
+  {pn:"BQ21040", mk:"[[fill]] · [[fill]]", ln:"TI's part. Roughly twenty times the price of the TP4056."}
+ ],
+ script:"Prices in unit quantity, from a distributor, on a date you say out loud. Package names matter here because package is thermal, and thermal is the back half of this episode. Do not editorialise yet — the bench block is just the three parts on the table."},
+
+/* ---- C1 · the decider ---- */
+{k:"statement", clip:"C1", hook:"A one-dollar charger and a nine-dollar charger. Here is what the nine dollars actually buys.",
+ eyebrow:"the decider",
+ head:"Charge current is a resistor. Input voltage is a coin flip.",
+ sub:"Every comparison of these three parts argues about milliamps. Milliamps are set by one resistor on the program pin. You choose that number.",
+ script:"Open cold — this module has to work with no context, because it is going out on its own as a short. Name all three parts in full. The move: everyone compares the spec you control, and nobody compares the spec the world controls."},
+
+{k:"beats", clip:"C1", eyebrow:"the decider",
+ head:"What the world puts on your input pin",
+ beats:[
+  {k:"a car adapter", v:"Nominally 12 V, and load-dump transients well above it"},
+  {k:"an unregulated wall wart", v:"Marked 5 V, measures higher with no load on it"},
+  {k:"a solar panel", v:"Open-circuit voltage in full sun, far above its working point"},
+  {k:"a hot-plug", v:"Cable inductance ringing on the connector, for microseconds"}
+ ],
+ script:"This is the argument. You pick the charge current; you do not pick what a user plugs in. Every one of these four is an ordinary thing that happens to a shipped product, and each one lands on the same pin."},
+
+{k:"statement", clip:"C1", eyebrow:"the decider",
+ head:"So the spec is the absolute maximum input voltage — and whether the part protects itself at it.",
+ sub:"Not the charge current. The charge current is a resistor.",
+ script:"Land the thesis in one sentence and stop. Closing statement, not a transition — the bridge into the teardowns is a separate take. Distinguish the two things: absolute maximum rating (survives) versus input overvoltage protection (stops charging and keeps working). They are not the same claim and the datasheets word them differently."},
+
+/* ---- C2 · TP4056 ---- */
+{k:"statement", clip:"C2", hook:"The one-dollar charger everyone recommends. Here is what its absolute-maximum page says.",
+ eyebrow:"teardown · TP4056",
+ head:"TP4056",
+ sub:"One amp, one dollar, sold on a module with a USB connector already fitted.",
+ script:"Cold open again. Give it credit first — it is genuinely a good part for the job it is good at, and saying so buys you the right to criticise it thirty seconds later."},
+
+{k:"beats", clip:"C2", eyebrow:"teardown · TP4056",
+ head:"Front page, footnote, graph",
+ beats:[
+  {k:"front page", v:"Charge current up to [[fill]], set by the program resistor"},
+  {k:"footnote", v:"Absolute maximum input voltage: [[fill]] — read the conditions line under it"},
+  {k:"graph", v:"[[fill]] — the thermal regulation curve, and where it starts folding current back"}
+ ],
+ script:"The three beats every teardown runs. Read the absolute maximum aloud with its units. Then say the thing viewers came for: absolute maximum is a survival rating, not an operating rating, and designing at it is designing at the edge of the guarantee."},
+
+{k:"statement", clip:"C2", eyebrow:"teardown · TP4056",
+ head:"Clean 5 V in, and it is the right answer. Anything else on that pin, and it is a gamble.",
+ sub:"Which is exactly the case a USB-powered project is in, and exactly the case a field product is not.",
+ script:"Closing statement. Name the boundary rather than the verdict — the part is not bad, its envelope is narrow, and the viewer can now tell whether they are inside it."},
+
+/* ---- C3 · MCP73831 ---- */
+{k:"statement", clip:"C3", hook:"The smallest lithium charger in common use, and the input ceiling nobody mentions.",
+ eyebrow:"teardown · MCP73831",
+ head:"MCP73831",
+ sub:"Five pins, SOT-23, four fixed regulation voltage options, one program resistor.",
+ script:"Cold open. Lead with why anyone reaches for it: board area. This is the part you use when the SOP-8 does not fit, and that is a real constraint, not a compromise."},
+
+{k:"beats", clip:"C3", eyebrow:"teardown · MCP73831",
+ head:"Front page, footnote, graph",
+ beats:[
+  {k:"front page", v:"Programmable charge current to [[fill]]; regulation options 4.20 / 4.35 / 4.40 / 4.50 V"},
+  {k:"footnote", v:"Maximum input voltage: [[fill]] — the lowest ceiling of the three"},
+  {k:"graph", v:"[[fill]] — thermal regulation folding charge current back against die temperature"}
+ ],
+ script:"The regulation voltage options are worth ten seconds: choosing 4.35 V because a cell datasheet allows it is a real decision with a real cycle-life cost. Then the ceiling. Say the number, then say what it excludes."},
+
+{k:"statement", clip:"C3", eyebrow:"teardown · MCP73831",
+ head:"The smallest package here, bought with the narrowest input window here.",
+ sub:"For a wearable behind a regulated 5 V rail, that trade is free. For anything with an exposed input, it is not.",
+ script:"Closing statement. Frame it as a trade rather than a flaw — the whole channel's tone is that parts are not good or bad, they are bounded."},
+
+/* ---- C4 · BQ21040 ---- */
+{k:"statement", clip:"C4", hook:"Twenty times the price of the cheap one, for less charge current. Here is what you are buying.",
+ eyebrow:"teardown · BQ21040",
+ head:"BQ21040",
+ sub:"TI's linear charger. Less current than the TP4056, and considerably more money.",
+ script:"Cold open on the paradox, because it is the hook: worse on the headline spec, much more expensive. If the episode's thesis is right, that should now be predictable rather than surprising."},
+
+{k:"beats", clip:"C4", eyebrow:"teardown · BQ21040",
+ head:"Front page, footnote, graph",
+ beats:[
+  {k:"front page", v:"Charge current to [[fill]] — below the TP4056's headline number"},
+  {k:"footnote", v:"Input voltage range and input overvoltage protection: [[fill]]"},
+  {k:"graph", v:"[[fill]] — thermal regulation and the safety timer behaviour"}
+ ],
+ script:"The pivot of the whole episode. Read TI's input overvoltage language exactly as written, then say the difference plainly: this part is specified to survive and keep behaving on an input the other two are not. Also check and state its lifecycle status — TI lists a newer recommended alternative in this family, and if the part is NRND, say so on screen. Admitting that makes the video more trustworthy, not less."},
+
+{k:"statement", clip:"C4", eyebrow:"teardown · BQ21040",
+ head:"You are not paying for amps. You are paying for the input pin.",
+ sub:"That is the sentence to take away from all three datasheets.",
+ script:"Closing statement, and the one line most likely to get quoted back at you in the comments. Say it slowly and stop talking."},
+
+/* ---- C5 · the test ---- */
+{k:"statement", clip:"C5", hook:"Set a linear charger to one amp and the heat has to go somewhere. Here is where.",
+ eyebrow:"the test",
+ head:"Where does the heat go?",
+ sub:"A linear charger is a controlled resistor. Everything it drops, it dissipates.",
+ script:"Cold open. This module is the one that shows you are an engineer and not a reviewer, and it is entirely arithmetic — no bench needed, which is why it is in episode one."},
+
+{k:"math", clip:"C5", eyebrow:"the test",
+ head:"P = (V_in − V_bat) × I_charge",
+ rows:[
+  {lb:"input", vl:"5.0 V"},
+  {lb:"cell, mid-charge", vl:"3.6 V"},
+  {lb:"charge current", vl:"1.0 A"},
+  {lb:"dropped across the IC", vl:"1.4 V"}
+ ],
+ out:"1.4 W, inside the package",
+ script:"Do the arithmetic out loud, slowly. The number is unremarkable until you put it next to a package. Note the worst case is not here — it is at the start of charge with a deeply discharged cell, where V_bat is lowest and the drop is largest."},
+
+{k:"beats", clip:"C5", eyebrow:"the test",
+ head:"1.4 W into a package rated how?",
+ beats:[
+  {k:"thermal resistance", v:"[[fill]] °C/W for the package, from the datasheet's thermal table"},
+  {k:"rise above ambient", v:"[[fill]] °C at 1.4 W"},
+  {k:"what happens next", v:"Thermal regulation folds the charge current back. The part is working correctly"}
+ ],
+ script:"This is the payoff. A charger that slows down under load is not faulty — it is protecting itself, exactly as specified. Then the practical consequence: the amp you programmed is not the amp you get, so a one-amp setting does not give you a one-hour charge. Derating is the same instinct you use on conductor ampacity at work; say that, it is a credible aside."},
+
+/* ---- the call ---- */
+{k:"table", eyebrow:"the call",
+ head:"Pick by what is on your input pin",
+ cols:["Your situation","Part","Because"],
+ rows:[
+  ["Clean, regulated 5 V. Cost matters.","TP4056","Cheapest path to a correct charge profile, inside a narrow input window"],
+  ["Board area is the binding constraint","MCP73831","Smallest footprint, if the input is already regulated for you"],
+  ["Input is unregulated, automotive, or solar","BQ21040","Input overvoltage protection is the thing you are buying"],
+  ["Above roughly [[fill]] of charge current","none of these","A linear charger stops being the right topology. Switch-mode"]
+ ],
+ script:"No winner, four situations. The last row is the most valuable one and almost nobody says it: at some current, the answer is that this entire class of part is wrong and you want a switching charger. Naming the boundary of your own comparison is what separates this from a listicle."},
+
+/* ---- C6 · the trap ---- */
+{k:"statement", clip:"C6", hook:"The mistake that turns a one-amp charger into a four-hour charge.",
+ eyebrow:"the trap",
+ head:"Sizing charge current from the cell, and forgetting the package",
+ sub:"The cell says it will take 1 C. The program resistor will happily ask for it. The package decides what actually happens.",
+ script:"Cold open on the symptom, because that is what people search for. The sequence: read the cell's C-rating, set the resistor, measure a charge current well below what you set, assume a counterfeit chip. It is usually not a counterfeit chip."},
+
+{k:"beats", clip:"C6", eyebrow:"the trap",
+ head:"Do it in this order instead",
+ beats:[
+  {k:"first", v:"Pick the charge current your package can dissipate at worst-case input"},
+  {k:"then", v:"Check that current against what the cell will accept"},
+  {k:"then", v:"Take the lower of the two, and size the program resistor from that"}
+ ],
+ script:"Three steps, in order, and that is the module. Closing statement — no call to action inside a clip, because it goes out as a short where a subscribe ask reads as noise."},
+
+/* ---- outro ---- */
+{k:"outro", eyebrow:"next",
+ head:"Episode 2 — the two-dollar buck module versus a real design",
+ sub:"LM2596 · MP1584 · TPS5430. Peak efficiency is measured at a load you will never run.",
+ script:"Long form only. Datasheet revisions and distributor links are in the description; say that rather than reading them out. Then the next episode, and stop — no outro card, no end screen holding on a still for twenty seconds."}
+];
+
+/* =====================================================================
+   TEMPLATE ENGINE — no episode content below this line
+   ===================================================================== */
+
+var i = 0, notesOpen = false, safeOn = false, gridOpen = false;
+var timerOn = false, t0 = 0, acc = 0, tick = null;
+
+function el(tag, cls, txt){
+  var n = document.createElement(tag);
+  if(cls) n.className = cls;
+  if(txt !== undefined && txt !== null) n.textContent = txt;
+  return n;
+}
+/* renders [[fill]] tokens as styled blanks; returns a fragment, never HTML from data */
+function txt(s){
+  var frag = document.createDocumentFragment();
+  var parts = String(s === undefined || s === null ? "" : s).split("[[fill]]");
+  for(var p = 0; p < parts.length; p++){
+    if(parts[p]) frag.appendChild(document.createTextNode(parts[p]));
+    if(p < parts.length - 1) frag.appendChild(el("span","fill","fill from datasheet"));
+  }
+  return frag;
+}
+function countFills(){
+  var n = 0;
+  SLIDES.forEach(function(s){
+    JSON.stringify([s.head, s.sub, s.cards, s.beats, s.rows, s.cols, s.out])
+      .split("[[fill]]").forEach(function(_, idx){ if(idx > 0) n++; });
+  });
+  return n;
+}
+function clipOf(idx){ return SLIDES[idx].clip || null; }
+function clipRange(id){
+  var first = -1, last = -1;
+  for(var j = 0; j < SLIDES.length; j++){
+    if(SLIDES[j].clip === id){ if(first < 0) first = j; last = j; }
+  }
+  return {first:first, last:last};
+}
+function clipIds(){
+  var seen = [];
+  SLIDES.forEach(function(s){ if(s.clip && seen.indexOf(s.clip) < 0) seen.push(s.clip); });
+  return seen;
+}
+
+/* ---------- slide rendering ---------- */
+function render(){
+  var s = SLIDES[i];
+  var host = document.getElementById("slide");
+  host.textContent = "";
+  host.className = "slide" + (s.clip ? " col" : "");
+
+  if(s.eyebrow || s.clip){
+    var eb = el("div","eyebrow");
+    if(s.eyebrow) eb.appendChild(document.createTextNode(s.eyebrow));
+    if(s.clip) eb.appendChild(el("span","tag", s.clip));
+    host.appendChild(eb);
+  }
+
+  if(s.k === "title"){
+    host.appendChild(el("h1","big", s.head));
+    var r = el("div","rule"); host.appendChild(r);
+    if(s.sub){ var p = el("p","sub"); p.appendChild(txt(s.sub)); host.appendChild(p); }
+  } else {
+    if(s.head){ var h = el("h2", s.k === "beats" || s.k === "math" || s.k === "table" || s.k === "three" ? "mid" : "head"); h.appendChild(txt(s.head)); host.appendChild(h); }
+    if(s.sub && s.k !== "beats" && s.k !== "math" && s.k !== "table" && s.k !== "three"){
+      var p2 = el("p","sub"); p2.appendChild(txt(s.sub)); host.appendChild(p2);
+    }
+  }
+
+  if(s.k === "three" && s.cards){
+    var w = el("div","three");
+    s.cards.forEach(function(c){
+      var card = el("div","card");
+      card.appendChild(el("div","pn", c.pn));
+      var mk = el("div","mk"); mk.appendChild(txt(c.mk)); card.appendChild(mk);
+      var ln = el("div","ln"); ln.appendChild(txt(c.ln)); card.appendChild(ln);
+      w.appendChild(card);
+    });
+    host.appendChild(w);
+  }
+
+  if(s.k === "beats" && s.beats){
+    var bw = el("div","beats");
+    s.beats.forEach(function(b){
+      var row = el("div","beat");
+      row.appendChild(el("div","k", b.k));
+      var v = el("div","v"); v.appendChild(txt(b.v)); row.appendChild(v);
+      bw.appendChild(row);
+    });
+    host.appendChild(bw);
+  }
+
+  if(s.k === "math"){
+    var mw = el("div","math");
+    (s.rows || []).forEach(function(r2){
+      var row = el("div","row");
+      row.appendChild(el("div","lb", r2.lb));
+      var v2 = el("div","vl"); v2.appendChild(txt(r2.vl)); row.appendChild(v2);
+      mw.appendChild(row);
+    });
+    if(s.out){ var o = el("div","out"); o.appendChild(txt(s.out)); mw.appendChild(o); }
+    host.appendChild(mw);
+  }
+
+  if(s.k === "table"){
+    var tb = el("table","vt");
+    var thead = el("thead"), trh = el("tr");
+    (s.cols || []).forEach(function(c){ trh.appendChild(el("th", null, c)); });
+    thead.appendChild(trh); tb.appendChild(thead);
+    var tbody = el("tbody");
+    (s.rows || []).forEach(function(r3){
+      var tr = el("tr");
+      r3.forEach(function(cell, ci){
+        var td = el("td", ci === 1 ? "pick" : null);
+        td.appendChild(txt(cell));
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    tb.appendChild(tbody);
+    host.appendChild(tb);
+  }
+
+  if(s.k === "outro" && s.sub){
+    var op = el("p","sub"); op.appendChild(txt(s.sub)); host.appendChild(op);
+  }
+
+  document.getElementById("prog").style.width = ((i + 1) / SLIDES.length * 100) + "%";
+  document.getElementById("count").textContent = (i + 1) + "/" + SLIDES.length;
+  renderNotes();
+  if(gridOpen) renderGrid();
+}
+
+function renderNotes(){
+  var s = SLIDES[i];
+  var nh = document.getElementById("notehead");
+  nh.textContent = "";
+  nh.appendChild(document.createTextNode("Slide " + (i + 1) + " of " + SLIDES.length));
+  if(s.clip){
+    var r = clipRange(s.clip);
+    nh.appendChild(el("span","tag", s.clip + " · slides " + (r.first + 1) + "–" + (r.last + 1)));
+    nh.appendChild(document.createTextNode("cut the short on these boundaries"));
+  } else {
+    nh.appendChild(document.createTextNode("· long form only"));
+  }
+  var hk = document.getElementById("hookline");
+  if(s.hook){ hk.textContent = "Hook: " + s.hook; hk.style.display = "block"; }
+  else { hk.textContent = ""; hk.style.display = "none"; }
+  document.getElementById("script").textContent = s.script || "";
+}
+
+function renderGrid(){
+  var host = document.getElementById("gridinner");
+  host.textContent = "";
+  var groups = [{id:null, label:"Long form only"}];
+  clipIds().forEach(function(c){ groups.push({id:c, label:c}); });
+  groups.forEach(function(g){
+    var idxs = [];
+    for(var j = 0; j < SLIDES.length; j++){ if((SLIDES[j].clip || null) === g.id) idxs.push(j); }
+    if(!idxs.length) return;
+    host.appendChild(el("h4", null, g.id ? (g.label + " — " + idxs.length + " slides, cuts as one short") : g.label));
+    var w = el("div","gwrap");
+    idxs.forEach(function(j){
+      var b = el("button","gcell" + (j === i ? " here" : ""));
+      b.setAttribute("type","button");
+      b.appendChild(el("div","gn", String(j + 1)));
+      b.appendChild(el("div","gt", SLIDES[j].head || SLIDES[j].eyebrow || ""));
+      if(SLIDES[j].clip) b.appendChild(el("div","gc", SLIDES[j].clip));
+      b.addEventListener("click", function(){ i = j; setGrid(false); render(); });
+      w.appendChild(b);
+    });
+    host.appendChild(w);
+  });
+}
+
+/* ---------- scaling ---------- */
+function fit(){
+  var wrap = document.getElementById("stagewrap");
+  var pad = 32;
+  var availW = wrap.clientWidth - pad;
+  var availH = wrap.clientHeight - pad - (notesOpen ? 0 : 0);
+  if(availW <= 0 || availH <= 0) return;
+  var k = Math.min(availW / 1920, availH / 1080);
+  document.getElementById("stage").style.transform = "scale(" + k + ")";
+}
+
+/* ---------- controls ---------- */
+function go(d){
+  var n = i + d;
+  if(n < 0) n = 0;
+  if(n > SLIDES.length - 1) n = SLIDES.length - 1;
+  if(n === i) return;
+  i = n; render();
+}
+function setNotes(v){
+  notesOpen = v;
+  document.body.className = v ? "notesopen" : "";
+  document.getElementById("bNotes").setAttribute("aria-pressed", v ? "true" : "false");
+  fit();
+}
+function setSafe(v){
+  safeOn = v;
+  document.getElementById("stage").className = v ? "showsafe" : "";
+  document.getElementById("bSafe").setAttribute("aria-pressed", v ? "true" : "false");
+}
+function setGrid(v){
+  gridOpen = v;
+  document.getElementById("grid").className = v ? "open" : "";
+  if(v) renderGrid();
+}
+function fmt(sec){
+  var m = Math.floor(sec / 60), s = Math.floor(sec % 60);
+  return m + ":" + (s < 10 ? "0" : "") + s;
+}
+function paintClock(){
+  var run = acc + (timerOn ? (Date.now() - t0) / 1000 : 0);
+  var c = document.getElementById("clock");
+  c.textContent = fmt(run);
+  c.style.color = run > EPISODE.target ? "#0B57D0" : "";
+}
+function toggleTimer(){
+  if(timerOn){ acc += (Date.now() - t0) / 1000; timerOn = false; }
+  else { t0 = Date.now(); timerOn = true; }
+  paintClock();
+}
+function toggleFull(){
+  var d = document;
+  if(!d.fullscreenElement && d.documentElement.requestFullscreen){
+    d.documentElement.requestFullscreen().catch(function(){});
+  } else if(d.exitFullscreen){ d.exitFullscreen().catch(function(){}); }
+}
+
+document.addEventListener("keydown", function(e){
+  var k = e.key;
+  if(k === "Escape"){ if(gridOpen) setGrid(false); return; }
+  if(k === "ArrowRight" || k === "PageDown" || k === " "){ e.preventDefault(); go(1); return; }
+  if(k === "ArrowLeft" || k === "PageUp"){ e.preventDefault(); go(-1); return; }
+  if(k === "Home"){ i = 0; render(); return; }
+  if(k === "End"){ i = SLIDES.length - 1; render(); return; }
+  var l = k.toLowerCase();
+  if(l === "n"){ setNotes(!notesOpen); return; }
+  if(l === "v"){ setSafe(!safeOn); return; }
+  if(l === "g"){ setGrid(!gridOpen); return; }
+  if(l === "t"){ toggleTimer(); return; }
+  if(l === "f"){ toggleFull(); return; }
+});
+document.getElementById("bNotes").addEventListener("click", function(){ setNotes(!notesOpen); });
+document.getElementById("bSafe").addEventListener("click", function(){ setSafe(!safeOn); });
+document.getElementById("bGrid").addEventListener("click", function(){ setGrid(!gridOpen); });
+document.getElementById("bFull").addEventListener("click", toggleFull);
+document.getElementById("stagewrap").addEventListener("click", function(e){
+  var w = document.getElementById("stagewrap").clientWidth;
+  go(e.clientX < w * 0.28 ? -1 : 1);
+});
+window.addEventListener("resize", fit);
+
+/* ---------- boot ---------- */
+document.getElementById("epname").textContent =
+  "Ep " + EPISODE.n + " · " + EPISODE.title + " · " + EPISODE.parts;
+var nf = countFills();
+var fb = document.getElementById("fills");
+fb.textContent = nf ? (nf + " to fill") : "no blanks left";
+if(!nf) fb.className = "fills clear";
+render();
+fit();
+tick = window.setInterval(paintClock, 1000);
+
+window.__deck = {SLIDES:SLIDES, EPISODE:EPISODE, go:go, at:function(){return i;},
+  clipIds:clipIds, clipRange:clipRange, countFills:countFills, fmt:fmt,
+  setNotes:setNotes, setSafe:setSafe, setGrid:setGrid, render:render};
+})();
+</script>
+</body>
+</html>

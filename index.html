@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CLAW Lab — fall block</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="CLAW Lab">
+<meta name="theme-color" content="#FFFFFF">
+<meta name="color-scheme" content="light">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#fff;--ink:#000;--blue:#0B57D0;--rule:#D6DCE4;--muted:#586074;--shade:#F5F7FA;
+ --sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+ --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+ padding:0 0 env(safe-area-inset-bottom)}
+.wrap{max-width:640px;margin:0 auto;padding:0 20px}
+header{border-bottom:2px solid var(--ink);padding:34px 0 22px}
+.brand{font-family:var(--mono);font-size:12px;color:var(--muted)}
+h1{font-size:28px;line-height:1.15;margin:8px 0 6px;font-weight:600;letter-spacing:-.015em}
+.sub{color:var(--muted);font-size:15px;margin:0}
+.count{font-family:var(--mono);font-size:13px;color:var(--blue);margin:14px 0 0}
+main{padding:8px 0 48px}
+a.card{display:block;border:1px solid var(--rule);border-left:4px solid var(--blue);
+ padding:18px 18px;margin:14px 0;text-decoration:none;color:inherit}
+a.card:hover{border-color:var(--blue)}
+a.card:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+a.card h2{margin:0;font-size:17px;font-weight:600}
+a.card p{margin:6px 0 0;font-size:14px;color:var(--muted);line-height:1.5}
+a.card .k{font-family:var(--mono);font-size:11px;color:var(--muted);display:block;margin:0 0 6px}
+.quiet{border-left-color:var(--rule)}
+h3{font-size:13px;font-family:var(--mono);color:var(--muted);font-weight:500;margin:34px 0 4px}
+ol{padding-left:20px;font-size:14.5px;line-height:1.65;color:var(--ink)}
+ol li{margin:6px 0}
+footer{border-top:1px solid var(--rule);margin-top:34px;padding:16px 0 30px;font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="brand">CLAWSEngineering</div>
+  <h1>Fall build block</h1>
+  <p class="sub">Wednesdays 5–8pm, plus a Saturday morning. Sep 2 to Dec 2, 2026.</p>
+  <p class="count" id="count">—</p>
+</div></header>
+
+<main class="wrap">
+  <a class="card" href="./tracker.html">
+    <span class="k">tracker</span>
+    <h2>The schedule</h2>
+    <p>Fourteen weeks of tasks, the six-episode pipeline board, and a note box per session. Ticks save on the device you use.</p>
+  </a>
+
+  <a class="card" href="./deck/ep1.html">
+    <span class="k">deck · episode 1</span>
+    <h2>Charging a lithium cell three ways</h2>
+    <p>BQ21040 · TP4056 · MCP73831. Presenter deck with the script, the clip boundaries, and the 9:16 safe column.</p>
+  </a>
+
+  <a class="card quiet" href="./docs/plan.md">
+    <span class="k">reference</span>
+    <h2>The plan</h2>
+    <p>The December goal, the week-by-week, and the contingency rules.</p>
+  </a>
+
+  <a class="card quiet" href="./docs/format.md">
+    <span class="k">reference</span>
+    <h2>Format and episodes</h2>
+    <p>The seven-block episode shape, the clip-native rules, and all six episode outlines.</p>
+  </a>
+
+  <h3>Put it on your home screen</h3>
+  <ol>
+    <li>Open this page in Safari on the iPhone.</li>
+    <li>Share, then Add to Home Screen.</li>
+    <li>It opens without browser chrome and works with no signal.</li>
+  </ol>
+
+  <h3>Moving progress from the laptop</h3>
+  <ol>
+    <li>On the laptop, open the tracker's Data tab.</li>
+    <li>Press Copy link with progress.</li>
+    <li>Text yourself the link and open it on the phone.</li>
+  </ol>
+
+  <footer>Ticks live in each browser's own storage, so the link is how they travel.</footer>
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var start = new Date(2026, 8, 2), end = new Date(2026, 11, 2), now = new Date();
+  var el = document.getElementById("count");
+  var day = 86400000;
+  if(now < start){
+    el.textContent = "starts in " + Math.ceil((start - now) / day) + " days";
+  } else if(now > end){
+    el.textContent = "block complete";
+  } else {
+    var wk = Math.floor((now - start) / (day * 7)) + 1;
+    var left = Math.max(0, Math.ceil((end - now) / (day * 7)));
+    el.textContent = "week " + wk + " of 14 · " + left + " to go";
+  }
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", function(){
+      navigator.serviceWorker.register("./sw.js").catch(function(){});
+    });
+  }
+})();
+</script>
+</body>
+</html>

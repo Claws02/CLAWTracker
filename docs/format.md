@@ -1,0 +1,248 @@
+---
+title: The Spec Check — format spec and episode outlines
+channel: CLAWSEngineering
+created: 2026-09-01
+tags: [claw, spec-check, content, video]
+---
+
+# The Spec Check — format spec and six episodes
+
+Channel: **CLAWSEngineering**. Series: **The Spec Check**.
+
+The premise, in one sentence you should be able to say on camera: *everyone picks parts off a forum post, and the datasheet usually says something different.*
+
+---
+
+## 1. The core idea: build the long form out of clips
+
+Most channels shoot a long video and then hunt through it for a moment that works as a short. That fails because the good moments depend on context you cut away — "as we saw earlier," "so given that number," "the second one."
+
+Invert it. **Write the episode as six self-contained modules that happen to be adjacent.** Each module has its own hook, its own payoff, and no backward references. The long form is the six modules plus thin bridges. The shorts are the modules, lifted whole, zero re-recording.
+
+### The five clip-native rules
+
+1. **No backward reference inside a module.** Never "as we saw," "that spec," "the second one." Say the part number and the spec name in full, every module, every time. It reads slightly repetitive in the long form and it's the entire reason the shorts work.
+2. **Every module opens on a hook that assumes zero context.** *"A one-dollar charger and a nine-dollar charger. Here's what the nine dollars actually buys."*
+3. **Every module closes on a statement, not a transition.** The bridge to the next module is a separate line, spoken over the slide change, cut out of the short.
+4. **Bridges are recorded as their own takes.** One sentence each, five of them per episode. They live only in the long form, which means an editing mistake in a bridge can't damage a clip.
+5. **Content stays inside the vertical safe column.** Shoot 1920×1080; keep every module slide's content inside a centered 1080-wide column so a 9:16 crop needs no re-layout. The deck has a toggle that draws this.
+
+### What that yields
+
+Six clips per episode × six episodes = **36 shorts**. At one short every two to three days, six clips fill exactly the two weeks between long-form uploads. The shorts calendar isn't a second project — it's the same project, published twice.
+
+---
+
+## 2. The episode format
+
+Target: **11–13 minutes**. Seven blocks. The same seven every time, so the audience learns the shape and you stop redesigning episodes.
+
+| Block | Time | What it does | Clip? |
+|---|---|---|---|
+| **The claim** | 0:00–0:35 | State the thing everyone says about these parts, flat, no hedging. Then say you're going to check it | no |
+| **The bench** | 0:35–1:30 | Three parts on screen. Price, package, one line each. No opinions yet | no |
+| **The decider** | 1:30–3:30 | The one spec that actually settles this comparison — explained from zero for someone who's never seen it | **C1** |
+| **Teardown A** | 3:30–5:15 | Part one against the decider: headline number, the condition footnote under it, the graph that complicates it | **C2** |
+| **Teardown B** | 5:15–7:00 | Part two, identical structure | **C3** |
+| **Teardown C** | 7:00–8:45 | Part three, identical structure | **C4** |
+| **The test** | 8:45–10:30 | One measurement or one calculation that puts a number on the claim | **C5** |
+| **The call** | 10:30–11:45 | A pick-by-use-case table. Never a single winner | no |
+| **The trap** | 11:45–12:45 | The mistake this exact comparison causes people to make, and how to not make it | **C6** |
+
+**Why there's no single winner.** "X is best" is the format every other channel uses and it's the one that ages badly and starts comment fights. A use-case table is more honest, more useful, and it's the same thing you'd hand a client.
+
+**Why the decider block exists.** It's the thesis. Every episode argues that the spec people compare on is *not* the spec that decides the design. That's the channel's whole point of view, and it's what makes it a series rather than six unrelated videos.
+
+### Teardown module — the fixed internal shape
+
+Every teardown, all eighteen of them, runs the same three beats:
+
+1. **The front-page number.** What the first page of the datasheet advertises.
+2. **The footnote.** The test conditions that number was measured under, which are usually not your conditions.
+3. **The graph.** The curve, deeper in the datasheet, that shows what happens at your conditions.
+
+That structure is why the teardowns are the strongest shorts — it's a small reveal with a payoff in under seventy seconds.
+
+---
+
+## 3. Production sequence per episode
+
+| Step | Where | Time | Output |
+|---|---|---|---|
+| 1. Pull datasheets, note revision numbers | Wed block | 45 min | three PDFs, revs logged |
+| 2. Check part status (active / NRND / EOL) on the manufacturer's own page | Wed block | 15 min | status line per part |
+| 3. Fill the deck's spec table from the datasheets only | Wed block | 45 min | populated deck |
+| 4. Write six module scripts + five bridges | Wed block | 75 min | script in the deck's notes pane |
+| 5. Record long form, module by module, stopping between | Sat | 60 min | raw audio + screen capture |
+| 6. Cut long form | Sat | 90 min | published episode |
+| 7. Lift six clips on slide boundaries, add captions | Sat / weekday evenings | 60 min | six shorts, scheduled |
+
+Record **module by module with a hard stop between each**. If a module is bad, you re-record ninety seconds, not eleven minutes. This is the single biggest lever on how much an episode costs you.
+
+---
+
+## 4. The six episodes
+
+### Episode 1 — Charging a lithium cell three ways
+
+**Parts:** BQ21040 · TP4056 · MCP73831
+**The claim:** the TP4056 is a dollar and does one amp, so nothing else is worth buying.
+**The decider: input overvoltage tolerance.** Everyone compares charge current. Charge current is a resistor. What actually kills boards is what the charger does when the input isn't a clean 5 V — a car adapter, an unregulated wall wart, a solar panel in full sun, a hot-plug transient. The BQ21040's pitch is a high input voltage range with input overvoltage protection; the MCP73831 tops out around 6 V; the TP4056 fails not far above that. That's a roughly twenty-to-one price difference buying you exactly one thing, and it isn't amps. *(Verify every voltage figure against the current datasheet revision before scripting — this framing is from vendor pages and community testing, not from the datasheets themselves yet.)*
+
+| Clip | Module |
+|---|---|
+| C1 | Why input overvoltage, not charge current, decides your charger |
+| C2 | TP4056: the one-dollar part and what its absolute-maximum page actually says |
+| C3 | MCP73831: the smallest one, and the input ceiling nobody mentions |
+| C4 | BQ21040: what twenty times the price buys |
+| C5 | Thermal math — set 1 A on a linear charger and find out where the heat goes |
+| C6 | The trap: sizing charge current from the cell and forgetting the package |
+
+**The test:** linear chargers dissipate (V_in − V_bat) × I_charge inside the chip. Run the arithmetic at 5 V in, 3.6 V cell, 1 A: that's roughly 1.4 W in an SOP-8. Then read the package's thermal resistance and show that thermal regulation folding the current back is not a fault, it's the part doing its job. This is the block where your MEP derating instincts show.
+
+**The trap:** people pick charge current from the cell's C-rating and never check whether the package can dissipate it, then blame the IC when charging takes four hours.
+
+**Also verify:** TI lists a newer recommended alternative in this family. If the BQ21040 is NRND, say so on screen — that's a stronger episode, not a weaker one.
+
+---
+
+### Episode 2 — The two-dollar buck module versus a real design
+
+**Parts:** LM2596 · MP1584 · TPS5430
+**The claim:** a buck module off a marketplace is 92 % efficient and costs two dollars, so why would anyone lay one out.
+**The decider: efficiency at *your* load, not peak efficiency.** The front-page number is measured at one input voltage, one output voltage, and one load current, usually near the part's sweet spot. Your design sits somewhere else on that curve — often at ten percent of full load, where a part with high quiescent current falls off a cliff.
+
+| Clip | Module |
+|---|---|
+| C1 | Peak efficiency is measured at a load you will never run |
+| C2 | LM2596: a 150 kHz part in a 2026 design, and what that costs you in inductor |
+| C3 | MP1584: high switching frequency, small parts, and the thermal bill |
+| C4 | TPS5430: what a real datasheet's efficiency family of curves tells you |
+| C5 | Read one efficiency curve properly — find your load, find your number |
+| C6 | The trap: the module's inductor is the part they saved money on |
+
+**The test:** take one efficiency curve, mark the actual operating point of a plausible design, and read the number off it next to the front-page figure.
+
+**The trap:** the module's cost was taken out of the passives — the inductor's saturation current and the output cap's ESR are what you're actually buying, and neither is on the listing.
+
+---
+
+### Episode 3 — Which microcontroller, and why the cheap answer is usually wrong
+
+**Parts:** ESP32-C3 · ESP32-S3 · RP2040
+**The claim:** they're all fast enough and they're all cheap, so pick whichever one has a library.
+**The decider: the peripheral you cannot fake in software.** Clock speed and core count almost never decide an embedded design. What decides it is whether the silicon has the thing you need — a radio, a USB device controller, enough ADC channels with usable resolution, a PIO block, deep-sleep current low enough for a battery — because everything else you can write, and that you cannot.
+
+| Clip | Module |
+|---|---|
+| C1 | Stop comparing clock speeds — compare the peripheral you can't write yourself |
+| C2 | ESP32-C3: one core, a radio, and what the deep-sleep number really is |
+| C3 | ESP32-S3: two cores plus the peripherals the C3 doesn't have |
+| C4 | RP2040: no radio, but a peripheral the other two can't emulate |
+| C5 | A battery-life calculation that picks the part for you |
+| C6 | The trap: choosing on benchmark numbers for a design that sleeps 99 % of the time |
+
+**The test:** duty-cycle battery math. Sleep current × sleep time plus active current × active time, against a real cell capacity. The winner usually isn't the fast one.
+
+**The trap:** benchmarking a part that spends its life asleep. Also: the ESP32-C3 appears in your Sidestream design — talk about the part, never the application. See the flag in the plan.
+
+---
+
+### Episode 4 — Driving a small DC motor without cooking it
+
+**Parts:** DRV8833 · TB6612FNG · L298N
+**The claim:** the L298N module is two amps per channel for three dollars, so it's the obvious pick.
+**The decider: on-resistance and how heat leaves the package.** The "2 A" on the front page is a silicon limit under conditions you won't meet. What you actually get is set by the total voltage drop across the output stage and whether the package can shed the resulting power. The L298N is a bipolar part from another era and drops volts, not millivolts; the modern MOSFET parts drop a fraction of that. On a 6 V robot that difference is most of your battery.
+
+| Clip | Module |
+|---|---|
+| C1 | The "2 A" on a motor driver is a thermal claim, not a current rating |
+| C2 | L298N: measure the voltage you lose before the motor ever sees it |
+| C3 | TB6612FNG: what MOSFET outputs do to that number |
+| C4 | DRV8833: the small one, and where its current limit really sits |
+| C5 | Voltage-drop math on a 6 V robot — how much of your battery never reaches the motor |
+| C6 | The trap: sizing a driver from stall current you never measured |
+
+**The test:** compute delivered motor voltage for each part at a realistic current, from the datasheet drop figures.
+
+**The trap:** sizing from the motor's *rated* current instead of its *stall* current, which is where the driver actually dies. Measure stall current with a bench supply and a clamp before choosing.
+
+**Motor-node note:** whichever part wins here goes on the Q1 LQR board. Write down why in the week 9 log.
+
+---
+
+### Episode 5 — The IMU everyone uses and the two that beat it
+
+**Parts:** MPU6050 · ICM-42688-P · BNO055
+**The claim:** the MPU6050 is two dollars and every tutorial uses it, so it's fine.
+**The decider: noise density and bias instability, plus who does the fusion.** For a control loop, the specs that matter are how much noise the gyro adds per root hertz and how far its zero point wanders as it warms up — because bias drift integrates into angle error, and your estimator has to fight it. The front-page range in degrees per second is nearly irrelevant.
+
+| Clip | Module |
+|---|---|
+| C1 | Gyro bias instability is the spec that decides your control loop |
+| C2 | MPU6050: the tutorial default, its noise numbers, and its part status in 2026 |
+| C3 | ICM-42688-P: what a modern low-noise gyro looks like on paper |
+| C4 | BNO055: paying for onboard fusion, and what you give up to get it |
+| C5 | Watch bias drift integrate into angle error over sixty seconds |
+| C6 | The trap: fusing on the host when the sensor already did it, or the reverse |
+
+**The test:** integrate a plausible bias figure over sixty seconds and show the resulting angle error. That single plot is the strongest short in the whole series and it sets up the LQR content directly.
+
+**Status angle:** check the MPU6050's current lifecycle status at script time. "Should you still design this in" is a stronger episode than a spec comparison, and if the answer is no, that's the video.
+
+---
+
+### Episode 6 — Measuring current three ways
+
+**Parts:** INA219 with a shunt · ACS712 · a hall-effect module
+**The claim:** current sensing is a resistor and an op-amp, pick whichever breakout is cheapest.
+**The decider: bandwidth and offset drift, against whether you need isolation.** A current sensor inside a control loop is part of the loop — if it's slow, your loop is slow, and if its zero wanders with temperature, your loop chases a lie. Isolation is the other axis, and it's binary: either your measurement point can share a ground reference or it can't.
+
+| Clip | Module |
+|---|---|
+| C1 | Your current sensor is inside the control loop, so its bandwidth is your bandwidth |
+| C2 | Shunt plus INA219: cheap, accurate, and what the common-mode limit costs you |
+| C3 | ACS712: isolation for free, and the offset drift you pay for it |
+| C4 | Hall-effect modules: bandwidth, and where the number comes from |
+| C5 | Offset drift over a temperature rise, in amps of error |
+| C6 | The trap: putting the shunt on the wrong side of the load |
+
+**The test:** convert each part's offset drift spec into amps of error over a realistic temperature rise.
+
+**The trap:** high-side versus low-side placement, and what a low-side shunt does to your ground reference — the mistake that quietly breaks a motor control loop.
+
+**Motor-node note:** this is the feedback path for the Q1 board. The episode is the design decision.
+
+---
+
+## 5. Naming, thumbnails, descriptions
+
+**Titles** — say the parts and say the stake. No "you won't believe."
+
+> Ep 1 · TP4056 vs MCP73831 vs BQ21040 — the spec that kills your board
+> Ep 4 · L298N vs TB6612FNG vs DRV8833 — where your battery actually goes
+
+**Thumbnails** — three part numbers as type, no faces, no arrows, no red circles. The type *is* the thumbnail. Reuse one layout for all six so the series reads as a set in a sidebar.
+
+**Descriptions** — first two lines carry the thesis, then the parts with datasheet links and revision numbers, then timestamps at block boundaries. The revision numbers in the description are a small thing that signals seriousness to exactly the audience you want.
+
+**Shorts titles** — the module hook, verbatim. It was written to work cold.
+
+---
+
+## 6. Glossary
+
+| Term | Meaning here |
+|---|---|
+| **Module** | A self-contained 45–75 s block. Six per episode. The unit of both recording and publishing |
+| **Bridge** | A one-sentence link between modules. Long form only, cut from every short |
+| **The decider** | The one spec the episode argues actually settles the comparison |
+| **Vertical safe column** | The centered 1080-wide region of the 1920 frame that survives a 9:16 crop |
+| **Front page / footnote / graph** | The three beats inside every teardown module |
+| **NRND** | Not Recommended for New Designs — a lifecycle status short of end-of-life |
+
+---
+
+## 7. What is not verified here
+
+The episode 1 framing around input overvoltage comes from TI's product page language and community testing, not from a side-by-side read of the three datasheets — confirm every voltage and current figure, and the BQ21040's lifecycle status, before you script it. All specs named in episodes 2 through 6 are the *axes* I'm proposing, not measured values; every number goes in the deck only after you've read it off a datasheet with a revision number attached. The MPU6050 lifecycle claim in episode 5 is an assumption worth checking first, because if it's wrong the episode's angle changes.

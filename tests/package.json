@@ -1,0 +1,10 @@
+{
+  "name": "claw-lab-tests",
+  "private": true,
+  "version": "1.0.0",
+  "description": "jsdom smoke tests for the CLAW Lab static pages",
+  "scripts": {
+    "test": "node tracker.test.js && node deck.test.js && node link.test.js"
+  },
+  "dependencies": { "jsdom": "^24.0.0" }
+}
