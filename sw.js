@@ -1,7 +1,7 @@
 /* CLAW Lab service worker.
    Network-first for pages so a push always wins; cache is the offline fallback.
    Bump CACHE when you change the shell file list. */
-const CACHE = "claw-lab-v2";
+const CACHE = "claw-lab-v3";
 const SHELL = [
   "./",
   "./index.html",
